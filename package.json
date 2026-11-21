@@ -1,0 +1,19 @@
+{
+  "name": "runemark",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --filter @runemark/web dev",
+    "build": "pnpm --filter @runemark/web build",
+    "typecheck": "pnpm -r --if-present run typecheck",
+    "test": "vitest run --passWithNoTests",
+    "check": "biome ci .",
+    "format": "biome format --write ."
+  },
+  "packageManager": "pnpm@12.16.1",
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.8",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.1"
+  }
+}
