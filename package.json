@@ -6,9 +6,10 @@
     "dev": "pnpm --filter @runemark/web dev",
     "build": "pnpm --filter @runemark/web build",
     "typecheck": "pnpm -r --if-present run typecheck",
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run",
     "check": "biome ci .",
-    "format": "biome format --write ."
+    "format": "biome check --write .",
+    "verify": "pnpm format && pnpm check && pnpm typecheck && pnpm test && pnpm build"
   },
   "packageManager": "pnpm@12.16.1",
   "devDependencies": {
