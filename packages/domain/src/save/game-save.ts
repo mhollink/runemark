@@ -1,3 +1,4 @@
+import type { ActivitySession } from "../activities/activity-session";
 import type { Character } from "../character/character";
 import { createInventory, type Inventory } from "../inventory/inventory";
 import {
@@ -11,12 +12,11 @@ export interface GameSave {
   readonly schemaVersion: typeof SAVE_SCHEMA_VERSION;
   readonly id: string;
   readonly contentVersion: string;
-  /** Unix milliseconds; all offline advancement starts here. */
   readonly lastSimulatedAt: number;
-  /** Persisted PRNG state to support deterministic offline progression. */
   readonly randomState: number;
   readonly character: Character;
   readonly bank: Inventory;
+  readonly activeActivity: ActivitySession | null;
 }
 
 export interface NewGameSave {
@@ -47,5 +47,6 @@ export function createGameSave(input: NewGameSave): GameSave {
     randomState: input.randomState,
     character: input.character,
     bank: createInventory(null),
+    activeActivity: null,
   };
 }

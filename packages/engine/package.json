@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@runemark/domain": "workspace:*"
+    "@runemark/domain": "workspace:*",
+    "@runemark/content": "workspace:*"
   }
 }

@@ -226,6 +226,9 @@ importers:
 
   packages/engine:
     dependencies:
+      '@runemark/content':
+        specifier: workspace:*
+        version: link:../content
       '@runemark/domain':
         specifier: workspace:*
         version: link:../domain
