@@ -1,0 +1,1 @@
+export const BANKING_DURATION_MS = 20_000;

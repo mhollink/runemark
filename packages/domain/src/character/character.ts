@@ -10,6 +10,7 @@ export const INITIAL_BACKPACK_CAPACITY = 10;
 export interface Character {
   readonly id: string;
   readonly name: string;
+  readonly nodeId: string;
   readonly locationId: string;
   readonly currentHitpoints: number;
   readonly skills: SkillProgress;
@@ -32,6 +33,7 @@ export function createCharacter(input: NewCharacter): Character {
   return {
     id: input.id,
     name: input.name,
+    nodeId: input.locationId,
     locationId: input.locationId,
     currentHitpoints: input.startingHitpoints,
     skills: {},

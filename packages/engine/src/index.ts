@@ -1,8 +1,10 @@
 import { gameContent } from "@runemark/content";
 import type { GameSave } from "@runemark/domain";
+import { findShortestRoute } from "./navigation/find-route";
 import { simulateGame } from "./simulation";
 import type { GameCommand, SimulationResult } from "./simulation-types";
 
+export { BANKING_DURATION_MS } from "./logistics/config";
 export type {
   GameCommand,
   GameEvent,
@@ -47,15 +49,26 @@ export function executeCommand(
     );
   }
 
+  const legs = findShortestRoute(
+    gameContent,
+    result.state.character.nodeId,
+    site.id,
+  );
+
+  if (legs === null) {
+    throw new Error(`No accessible route to ${site.id}`);
+  }
+
   return {
     ...result,
     state: {
       ...result.state,
       activeActivity: {
         siteId: site.id,
-        elapsedMs: 0,
         status: "running",
-        phase: "working",
+        phase: legs.length === 0 ? "working" : "travel-to-site",
+        elapsedMs: 0,
+        travel: legs.length === 0 ? null : { legs, index: 0 },
       },
     },
   };

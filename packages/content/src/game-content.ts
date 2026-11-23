@@ -6,13 +6,14 @@ import type {
   LootTableDefinition,
   MonsterDefinition,
   RegionDefinition,
+  TravelRouteDefinition,
 } from "@runemark/domain";
 import { activities } from "./activities";
 import { lootTables } from "./common/loot";
 import { items } from "./items";
 import { monsters } from "./monsters";
 import type { GameContent } from "./types";
-import { locations, regions, sites } from "./world";
+import { locations, regions, routes, sites } from "./world";
 
 export const gameContent = buildGameContent({
   version: "0.1.0",
@@ -23,6 +24,7 @@ export const gameContent = buildGameContent({
   locations,
   activities,
   sites,
+  routes,
 });
 
 function indexById<T extends { readonly id: string }>(
@@ -50,6 +52,7 @@ interface GameContentSources {
   readonly regions: readonly RegionDefinition[];
   readonly locations: readonly LocationDefinition[];
   readonly sites: readonly ActivitySiteDefinition[];
+  readonly routes: readonly TravelRouteDefinition[];
 }
 
 function buildGameContent(sources: GameContentSources): GameContent {
@@ -62,5 +65,6 @@ function buildGameContent(sources: GameContentSources): GameContent {
     locations: indexById(sources.locations),
     activities: indexById(sources.activities),
     sites: indexById(sources.sites),
+    routes: indexById(sources.routes),
   };
 }

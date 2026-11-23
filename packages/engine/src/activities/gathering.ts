@@ -11,11 +11,13 @@ import {
   type Inventory,
   InventoryCapacityError,
   type ItemDrop,
+  type TravelLeg,
+  type TravelProgress,
 } from "@runemark/domain";
+import { BANKING_DURATION_MS } from "../logistics/config";
 import { guaranteedDrops, resolveLoot } from "../loot/resolve-loot";
+import { findNearestBank, findShortestRoute } from "../navigation/find-route";
 import type { GameEvent, SimulationResult } from "../simulation-types";
-
-const BANKING_DURATION_MS = 60_000;
 
 function getItem(content: GameContent, itemId: string) {
   const item = content.items[itemId];
@@ -100,34 +102,38 @@ export function simulateGathering(
     throw new Error("No matching active gathering session");
   }
 
-  const location = content.locations[site.locationId];
-  if (!location || site.locationId !== state.character.locationId) {
-    throw new Error(`Site ${site.id} is not available here`);
-  }
-
   if (
     !Number.isSafeInteger(activity.durationMs) ||
     activity.durationMs <= 0 ||
     !Number.isSafeInteger(activity.experiencePerAction) ||
     activity.experiencePerAction <= 0
   ) {
-    throw new RangeError(`Invalid gathering activity: ${activity.id}`);
+    throw new RangeError(`Invalid activity: ${activity.id}`);
   }
 
   const phaseDuration =
-    session.phase === "working" ? activity.durationMs : BANKING_DURATION_MS;
+    session.phase === "working"
+      ? activity.durationMs
+      : session.phase === "banking"
+        ? BANKING_DURATION_MS
+        : session.travel?.legs[session.travel.index]?.durationMs;
 
   if (
+    phaseDuration === undefined ||
     !Number.isSafeInteger(session.elapsedMs) ||
     session.elapsedMs < 0 ||
     session.elapsedMs >= phaseDuration
   ) {
-    throw new RangeError("Invalid activity phase progress");
+    throw new RangeError("Invalid phase progress");
   }
 
   let cursor = state.lastSimulatedAt;
-  let elapsedMs = session.elapsedMs;
   let phase: ActivityPhase = session.phase;
+  let elapsedMs = session.elapsedMs;
+  let travel: TravelProgress | null = session.travel;
+
+  let nodeId = state.character.nodeId;
+  let locationId = state.character.locationId;
   let backpack = state.character.backpack;
   let bank = state.bank;
   let randomState = state.randomState;
@@ -140,64 +146,111 @@ export function simulateGathering(
   const itemsBanked: Record<string, number> = {};
   const events: GameEvent[] = [];
   const guaranteed = guaranteedDrops(activity.rewards, content);
-  const bankAvailable = location.facilities?.includes("bank") ?? false;
 
-  /**
-   * Called when the next gathering action cannot fit.
-   *
-   * If banking is possible, enter the banking phase.
-   * Otherwise, block the selected activity.
-   */
-  const startBankingOrBlock = () => {
-    if (bankAvailable && backpack.slots.length > 0) {
-      phase = "banking";
-      elapsedMs = 0;
+  function beginTravel(
+    destination: "travel-to-bank" | "travel-to-site",
+    legs: readonly TravelLeg[],
+  ): void {
+    elapsedMs = 0;
+    travel = legs.length > 0 ? { legs, index: 0 } : null;
+
+    phase =
+      legs.length > 0
+        ? destination
+        : destination === "travel-to-bank"
+          ? "banking"
+          : "working";
+  }
+
+  function startBankingOrBlock(): void {
+    const route = findNearestBank(content, nodeId);
+
+    if (route !== null && backpack.slots.length > 0) {
+      beginTravel("travel-to-bank", route);
       return;
     }
 
     blocked = true;
     phase = "working";
     elapsedMs = 0;
+    travel = null;
 
     events.push({
       type: "ACTIVITY_BLOCKED",
       siteId: site.id,
       activityId: activity.id,
       timestamp: cursor,
-      reason: bankAvailable ? "INVENTORY_FULL" : "BANK_UNAVAILABLE",
+      reason: route === null ? "BANK_UNAVAILABLE" : "INVENTORY_FULL",
     });
-  };
+  }
 
   while (cursor < until && !blocked) {
-    // A newly started activity may already have a full backpack.
-    if (phase === "working" && !canGather(backpack, guaranteed, content)) {
-      startBankingOrBlock();
+    if (phase === "travel-to-bank" || phase === "travel-to-site") {
+      const leg = travel?.legs[travel.index];
 
-      if (blocked) {
-        break;
+      if (!leg || leg.fromId !== nodeId) {
+        throw new Error("Invalid travel progress");
+      }
+
+      const advance = Math.min(until - cursor, leg.durationMs - elapsedMs);
+
+      cursor += advance;
+      elapsedMs += advance;
+
+      if (elapsedMs < leg.durationMs) break;
+
+      // The character has reached the next node.
+      nodeId = leg.toId;
+      elapsedMs = 0;
+
+      const arrivedLocationId =
+        content.sites[nodeId]?.locationId ??
+        (content.locations[nodeId] ? nodeId : undefined);
+
+      if (!arrivedLocationId) {
+        throw new Error(`Unknown travel node: ${nodeId}`);
+      }
+
+      locationId = arrivedLocationId;
+
+      if (travel && travel.index + 1 < travel.legs.length) {
+        travel = { ...travel, index: travel.index + 1 };
+      } else {
+        travel = null;
+        phase = phase === "travel-to-bank" ? "banking" : "working";
+      }
+
+      continue;
+    }
+
+    if (phase === "working") {
+      if (nodeId !== site.id) {
+        throw new Error(`Character is not at site ${site.id}`);
+      }
+
+      if (!canGather(backpack, guaranteed, content)) {
+        startBankingOrBlock();
+        continue;
       }
     }
 
     const duration =
-      phase === "working" ? activity.durationMs : BANKING_DURATION_MS;
+      phase === "banking" ? BANKING_DURATION_MS : activity.durationMs;
 
-    const remaining = until - cursor;
-    const required = duration - elapsedMs;
-    const advanced = Math.min(remaining, required);
+    const advance = Math.min(until - cursor, duration - elapsedMs);
 
-    cursor += advanced;
-    elapsedMs += advanced;
+    cursor += advance;
+    elapsedMs += advance;
 
-    // Preserve partial progress until the next simulation.
-    if (elapsedMs < duration) {
-      break;
-    }
+    if (elapsedMs < duration) break;
 
     elapsedMs = 0;
 
     if (phase === "banking") {
-      // The full 60 seconds have elapsed.
-      // Deposit the backpack into the global bank.
+      if (!content.locations[nodeId]?.facilities?.includes("bank")) {
+        throw new Error(`No bank at ${nodeId}`);
+      }
+
       bank = depositInventory(bank, backpack);
 
       for (const slot of backpack.slots) {
@@ -212,24 +265,22 @@ export function simulateGathering(
 
       backpack = { ...backpack, slots: [] };
       bankTrips++;
-      phase = "working";
 
-      // Prevent an infinite loop if an activity cannot produce
-      // its guaranteed rewards even with an empty backpack.
-      if (!canGather(backpack, guaranteed, content)) {
-        startBankingOrBlock();
+      const route = findShortestRoute(content, nodeId, site.id);
+
+      if (route === null) {
+        throw new Error(`No return route to ${site.id}`);
       }
 
+      beginTravel("travel-to-site", route);
       continue;
     }
 
-    // A gathering action has completed.
+    // Gathering action completed.
     const loot = resolveLoot(activity.rewards, content, randomState);
-
     randomState = loot.randomState;
     completedActions++;
 
-    // Existing behavior: store what fits and discard the rest.
     const stored = storeDrops(backpack, loot.drops, content);
     backpack = stored.inventory;
 
@@ -243,8 +294,6 @@ export function simulateGathering(
       itemsGained[drop.itemId] = total;
     }
 
-    // Enter the banking phase immediately when no more
-    // guaranteed resources can fit.
     if (!canGather(backpack, guaranteed, content)) {
       startBankingOrBlock();
     }
@@ -253,17 +302,8 @@ export function simulateGathering(
   const experience = completedActions * activity.experiencePerAction;
 
   if (!Number.isSafeInteger(experience)) {
-    throw new RangeError("Gathering experience overflow");
+    throw new RangeError("Experience overflow");
   }
-
-  const skills =
-    completedActions === 0
-      ? state.character.skills
-      : awardSkillExperience(
-          state.character.skills,
-          activity.skillId,
-          experience,
-        );
 
   return {
     state: {
@@ -273,14 +313,24 @@ export function simulateGathering(
       bank,
       character: {
         ...state.character,
+        nodeId,
+        locationId,
         backpack,
-        skills,
+        skills:
+          completedActions === 0
+            ? state.character.skills
+            : awardSkillExperience(
+                state.character.skills,
+                activity.skillId,
+                experience,
+              ),
       },
       activeActivity: {
         ...session,
+        status: blocked ? "blocked" : "running",
         phase,
         elapsedMs,
-        status: blocked ? "blocked" : "running",
+        travel,
       },
     },
     events,

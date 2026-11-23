@@ -1,0 +1,386 @@
+:root {
+  font-family: Inter, system-ui, sans-serif;
+  color: #e5edf3;
+  background: #0b111a;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+button {
+  font: inherit;
+}
+
+button:focus-visible {
+  outline: 2px solid #6dbbd9;
+  outline-offset: 3px;
+}
+
+.game-shell {
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.eyebrow {
+  color: #75a9bd;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.topbar h1 {
+  margin: 4px 0 0;
+  font-size: 30px;
+  letter-spacing: 0.16em;
+}
+
+.location-label {
+  display: grid;
+  gap: 4px;
+  text-align: right;
+}
+
+.location-label span,
+.panel-heading p,
+.activity-subtitle,
+.empty-message,
+.game-footer {
+  color: #8fa2b2;
+  font-size: 13px;
+}
+
+.game-grid {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr) 310px;
+  grid-template-areas: "sites activity resources";
+  align-items: start;
+  gap: 20px;
+}
+
+.panel {
+  padding: 22px;
+  border: 1px solid #253447;
+  border-radius: 12px;
+  background: #141e2a;
+}
+
+.panel h2 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.site-panel {
+  grid-area: sites;
+}
+
+.panel-heading {
+  margin-bottom: 20px;
+}
+
+.panel-heading p {
+  margin-bottom: 0;
+}
+
+.site-list {
+  display: grid;
+  gap: 10px;
+}
+
+.site-button {
+  display: grid;
+  gap: 7px;
+  width: 100%;
+  padding: 16px;
+  border: 1px solid #304050;
+  border-radius: 8px;
+  background: #1a2634;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 150ms,
+    background 150ms;
+}
+
+.site-button:hover:not(:disabled) {
+  border-color: #619eb7;
+}
+
+.site-button.selected {
+  border-color: #68b3d1;
+  background: #21394b;
+}
+
+.site-button:disabled {
+  cursor: default;
+}
+
+.site-skill,
+.site-details,
+.site-state {
+  font-size: 12px;
+  color: #91a8b9;
+}
+
+.site-skill {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.site-state {
+  color: #91d5eb;
+}
+
+.activity-panel {
+  grid-area: activity;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 390px;
+  padding: 40px 28px;
+  text-align: center;
+}
+
+.activity-symbol {
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  margin: 20px 0;
+  border: 1px solid #42738c;
+  border-radius: 20px;
+  background: #1e394b;
+  color: #9ad4ea;
+  font-size: 36px;
+  font-weight: 700;
+}
+
+.activity-panel h2 {
+  margin: 5px 0;
+  font-size: 25px;
+}
+
+.activity-status {
+  margin: 4px 0;
+  color: #8fc9df;
+  font-size: 13px;
+}
+
+.activity-subtitle {
+  margin: 8px 0 22px;
+}
+
+.activity-progress {
+  width: 100%;
+  max-width: 430px;
+  margin: 12px 0 28px;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+  color: #b2c5d2;
+  font-size: 13px;
+}
+
+.progress-track,
+.capacity-track {
+  overflow: hidden;
+  width: 100%;
+  border-radius: 20px;
+  background: #293848;
+}
+
+.progress-track {
+  height: 12px;
+}
+
+.progress-fill,
+.capacity-track > div {
+  height: 100%;
+  background: linear-gradient(90deg, #347e9e, #75c3dc);
+}
+
+.action-button {
+  padding: 11px 22px;
+  border: 1px solid #619eb7;
+  border-radius: 7px;
+  background: #286888;
+  color: #f3f8fa;
+  cursor: pointer;
+}
+
+.action-button.secondary {
+  background: transparent;
+}
+
+.action-button:hover {
+  background: #2e5064;
+}
+
+.activity-empty {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.activity-empty p {
+  color: #8fa2b2;
+}
+
+.resource-panel {
+  grid-area: resources;
+  display: grid;
+  gap: 20px;
+}
+
+.resource-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.resource-heading span {
+  color: #96aaba;
+  font-size: 12px;
+}
+
+.capacity-track {
+  height: 6px;
+  margin-bottom: 16px;
+}
+
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.inventory-slot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border: 1px solid #303f4e;
+  border-radius: 6px;
+  background: #0f1823;
+}
+
+.inventory-slot.occupied {
+  border-color: #48748c;
+  background: #244154;
+}
+
+.item-initial {
+  color: #a9d8e9;
+  font-weight: 700;
+}
+
+.item-count {
+  position: absolute;
+  right: 4px;
+  bottom: 2px;
+  font-size: 10px;
+}
+
+.bank-list {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bank-list li,
+.skill-entry {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.bank-list strong {
+  color: #b0d7e6;
+}
+
+.skills-panel {
+  margin-top: 20px;
+}
+
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.skill-entry {
+  gap: 30px;
+  min-width: 180px;
+  color: #9eb5c5;
+}
+
+.skill-entry strong {
+  color: #e5edf3;
+}
+
+.game-footer {
+  margin-top: 30px;
+  text-align: center;
+}
+
+@media (max-width: 1000px) {
+  .game-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "activity activity"
+      "sites resources";
+  }
+}
+
+@media (max-width: 620px) {
+  .game-shell {
+    padding: 18px 12px;
+  }
+
+  .game-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "activity"
+      "sites"
+      "resources";
+  }
+
+  .topbar h1 {
+    font-size: 23px;
+  }
+
+  .activity-panel {
+    min-height: 340px;
+  }
+}

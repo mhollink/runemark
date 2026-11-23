@@ -3,7 +3,7 @@ import type { LootTableDefinition } from "@runemark/domain";
 export const miningGems = {
   id: "mining-gems",
   kind: "conditional",
-  oneIn: 100,
+  oneIn: 50,
   success: {
     kind: "weighted",
     entries: [

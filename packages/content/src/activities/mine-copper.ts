@@ -5,8 +5,8 @@ export const mineCopper = {
   kind: "gathering",
   name: "Mine Copper Ore",
   skillId: "mining",
-  durationMs: 7000,
-  experiencePerAction: 7,
+  durationMs: 7500,
+  experiencePerAction: 6,
 
   rewards: {
     kind: "all",

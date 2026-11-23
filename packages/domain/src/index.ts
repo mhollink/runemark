@@ -13,3 +13,4 @@ export * from "./skills/skill-progress";
 export * from "./world/location";
 export * from "./world/region";
 export * from "./world/site";
+export * from "./world/travel-route";

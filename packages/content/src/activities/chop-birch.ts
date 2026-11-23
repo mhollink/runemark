@@ -6,7 +6,7 @@ export const chopBirch = {
   name: "Chop birch tree",
   skillId: "woodcutting",
   durationMs: 5000,
-  experiencePerAction: 5,
+  experiencePerAction: 4,
 
   rewards: {
     kind: "fixed",

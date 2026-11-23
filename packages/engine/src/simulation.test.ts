@@ -38,11 +38,11 @@ describe("gathering engine", () => {
   it("preserves unfinished actions", () => {
     const initial = startGathering();
 
-    const first = advanceGame(initial, START + 3_000);
-    expect(first.summary.completedActions).toBe(0);
-    expect(first.state.activeActivity?.elapsedMs).toBe(3_000);
+    const first = advanceGame(initial, START + 40_000);
+    expect(first.summary.completedActions).toBe(1);
+    expect(first.state.activeActivity?.elapsedMs).toBe(0);
 
-    const second = advanceGame(first.state, START + 12_000);
+    const second = advanceGame(first.state, START + 52_000);
 
     expect(second.summary.completedActions).toBe(2);
     expect(second.state.activeActivity?.elapsedMs).toBe(2_000);
@@ -69,17 +69,17 @@ describe("gathering engine", () => {
     const result = advanceGame(initial, START + 666_000);
 
     expect(result.state.activeActivity?.status).toBe("running");
-    expect(result.state.activeActivity?.elapsedMs).toBe(1000);
-    expect(result.summary.completedActions).toBe(61);
-    expect(result.summary.bankTrips).toBe(6);
+    expect(result.state.activeActivity?.phase).toBe("travel-to-bank");
+    expect(result.summary.completedActions).toBe(50);
+    expect(result.summary.bankTrips).toBe(4);
     expect(result.summary.experienceGained).toEqual({
-      woodcutting: 305,
+      woodcutting: 200,
     });
-    expect(countBankItem(result.state.bank, "birch-log")).toBe(60);
+    expect(countBankItem(result.state.bank, "birch-log")).toBe(40);
 
     expect(
       countInventoryItem(result.state.character.backpack, "birch-log"),
-    ).toBe(1);
+    ).toBe(10);
   });
 
   it("discards overflowing loot but still awards XP", () => {
@@ -120,6 +120,7 @@ describe("gathering engine", () => {
       ...base,
       character: {
         ...base.character,
+        nodeId: "eldvik-copper-mine",
         backpack: createInventory(1),
       },
       activeActivity: {
@@ -127,10 +128,11 @@ describe("gathering engine", () => {
         elapsedMs: 0,
         status: "running",
         phase: "working",
+        travel: null,
       },
     };
 
-    const result = simulateGame(state, content, START + 7_000);
+    const result = simulateGame(state, content, START + 7_500);
 
     expect(result.summary.completedActions).toBe(1);
     expect(result.summary.itemsGained).toEqual({
@@ -145,7 +147,7 @@ describe("gathering engine", () => {
       countInventoryItem(result.state.character.backpack, "copper-ore"),
     ).toBe(0);
 
-    expect(experienceForSkill(result.state.character.skills, "mining")).toBe(7);
+    expect(experienceForSkill(result.state.character.skills, "mining")).toBe(6);
 
     expect(result.state.activeActivity?.status).toBe("running");
     expect(result.state.randomState).not.toBe(state.randomState);
@@ -174,7 +176,7 @@ describe("automated banking", () => {
   it("starts banking when the backpack fills", () => {
     const started = startGathering();
 
-    const result = advanceGame(started, START + 50_000);
+    const result = advanceGame(started, START + 120_000);
 
     expect(result.summary.completedActions).toBe(10);
     expect(result.summary.bankTrips).toBe(0);
@@ -199,8 +201,8 @@ describe("automated banking", () => {
     const second = advanceGame(first.state, START + 90_000);
 
     expect(second.state.activeActivity).toMatchObject({
-      phase: "banking",
-      elapsedMs: 40_000,
+      phase: "travel-to-bank",
+      elapsedMs: 5000,
     });
 
     expect(countBankItem(second.state.bank, "birch-log")).toBe(0);
@@ -210,7 +212,7 @@ describe("automated banking", () => {
   it("deposits resources after 60 seconds and resumes gathering", () => {
     const started = startGathering();
 
-    const result = advanceGame(started, START + 115_000);
+    const result = advanceGame(started, START + 180_000);
 
     expect(result.summary.completedActions).toBe(11);
     expect(result.summary.bankTrips).toBe(1);
@@ -249,16 +251,16 @@ describe("automated banking", () => {
 
     const result = advanceGame(started, START + 86_400_000);
 
-    expect(result.summary.bankTrips).toBe(785);
-    expect(result.summary.completedActions).toBe(7_860);
+    expect(result.summary.bankTrips).toBe(617);
+    expect(result.summary.completedActions).toBe(6_170);
 
-    expect(countBankItem(result.state.bank, "birch-log")).toBe(7_850);
+    expect(countBankItem(result.state.bank, "birch-log")).toBe(6_170);
 
     expect(
       countInventoryItem(result.state.character.backpack, "birch-log"),
-    ).toBe(10);
+    ).toBe(0);
 
-    expect(result.state.activeActivity?.phase).toBe("banking");
+    expect(result.state.activeActivity?.phase).toBe("travel-to-site");
     expect(result.events).toEqual([]);
   });
 
@@ -278,7 +280,7 @@ describe("automated banking", () => {
 
     expect(
       countInventoryItem(stopped.state.character.backpack, "birch-log"),
-    ).toBe(10);
+    ).toBe(8);
   });
 
   it("blocks when the location has no accessible bank", () => {
@@ -307,9 +309,44 @@ describe("automated banking", () => {
         type: "ACTIVITY_BLOCKED",
         siteId: "eldvik-birch-grove",
         activityId: "chop-birch",
-        timestamp: START + 50_000,
+        timestamp: START + 85_000,
         reason: "BANK_UNAVAILABLE",
       },
     ]);
+  });
+
+  it("travels to the selected site before gathering", () => {
+    const started = startGathering();
+
+    expect(started.activeActivity?.phase).toBe("travel-to-site");
+
+    const result = advanceGame(started, START + 40_000);
+
+    expect(result.summary.completedActions).toBe(1);
+    expect(result.state.character.nodeId).toBe("eldvik-birch-grove");
+    expect(result.state.activeActivity?.phase).toBe("working");
+  });
+
+  it("includes travel in automatic banking cycles", () => {
+    const started = startGathering();
+    const result = advanceGame(started, START + 665_000);
+
+    expect(result.summary.bankTrips).toBe(4);
+    expect(result.summary.completedActions).toBe(50);
+    expect(countBankItem(result.state.bank, "birch-log")).toBe(40);
+    expect(
+      countInventoryItem(result.state.character.backpack, "birch-log"),
+    ).toBe(10);
+  });
+
+  it("is deterministic across travel and banking", () => {
+    const started = startGathering();
+
+    const direct = advanceGame(started, START + 665_000);
+    const first = advanceGame(started, START + 12_000);
+    const second = advanceGame(first.state, START + 75_000);
+    const third = advanceGame(second.state, START + 665_000);
+
+    expect(third.state).toEqual(direct.state);
   });
 });
