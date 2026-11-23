@@ -1,5 +1,6 @@
 export * from "./activities/activity-definition";
 export * from "./activities/activity-session";
+export * from "./bank/bank";
 export * from "./character/character";
 export * from "./experience/experience-table";
 export * from "./inventory/inventory";

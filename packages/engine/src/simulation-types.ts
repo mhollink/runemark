@@ -4,6 +4,8 @@ export interface SimulationSummary {
   readonly completedActions: number;
   readonly itemsGained: Readonly<Record<string, number>>;
   readonly experienceGained: Readonly<Record<string, number>>;
+  readonly bankTrips: number;
+  readonly itemsBanked: Readonly<Record<string, number>>;
 }
 
 export type GameEvent = {
@@ -11,7 +13,7 @@ export type GameEvent = {
   readonly siteId: string;
   readonly activityId: string;
   readonly timestamp: number;
-  readonly reason: "INVENTORY_FULL";
+  readonly reason: "INVENTORY_FULL" | "BANK_UNAVAILABLE";
 };
 
 export interface SimulationResult {

@@ -4,4 +4,5 @@ export const eldvik = {
   id: "eldvik",
   name: "Eldvik",
   regionId: "eldmark",
+  facilities: ["bank"],
 } satisfies LocationDefinition;

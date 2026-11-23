@@ -7,6 +7,8 @@ const EMPTY_SUMMARY: SimulationSummary = {
   completedActions: 0,
   itemsGained: {},
   experienceGained: {},
+  bankTrips: 0,
+  itemsBanked: {},
 };
 
 export function simulateGame(

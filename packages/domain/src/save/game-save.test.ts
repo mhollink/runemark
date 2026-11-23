@@ -30,7 +30,7 @@ describe("Character and GameSave", () => {
 
     expect(save.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
     expect(save.character).toBe(character);
-    expect(save.bank.capacity).toBeNull();
+    expect(save.bank).toEqual({ items: {} });
     expect(save.lastSimulatedAt).toBe(1_790_000_000_000);
     expect(save.randomState).toBe(12345);
     expect(JSON.parse(JSON.stringify(save))).toEqual(save);

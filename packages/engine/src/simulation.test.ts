@@ -1,5 +1,6 @@
 import { type GameContent, gameContent } from "@runemark/content";
 import {
+  countBankItem,
   countInventoryItem,
   createCharacter,
   createGameSave,
@@ -62,18 +63,23 @@ describe("gathering engine", () => {
     expect(third.state).toEqual(direct.state);
   });
 
-  it("blocks when no guaranteed resource can fit", () => {
+  it("automatically moves items from inventory to bank", () => {
     const initial = startGathering();
 
-    const result = advanceGame(initial, START + 86_400_000);
+    const result = advanceGame(initial, START + 666_000);
 
-    expect(result.state.activeActivity?.status).toBe("blocked");
-    expect(result.summary.completedActions).toBe(10);
-    expect(result.events[0]?.timestamp).toBe(START + 50_000);
+    expect(result.state.activeActivity?.status).toBe("running");
+    expect(result.state.activeActivity?.elapsedMs).toBe(1000);
+    expect(result.summary.completedActions).toBe(61);
+    expect(result.summary.bankTrips).toBe(6);
+    expect(result.summary.experienceGained).toEqual({
+      woodcutting: 305,
+    });
+    expect(countBankItem(result.state.bank, "birch-log")).toBe(60);
 
     expect(
       countInventoryItem(result.state.character.backpack, "birch-log"),
-    ).toBe(10);
+    ).toBe(1);
   });
 
   it("discards overflowing loot but still awards XP", () => {
@@ -120,6 +126,7 @@ describe("gathering engine", () => {
         siteId: "eldvik-copper-mine",
         elapsedMs: 0,
         status: "running",
+        phase: "working",
       },
     };
 
@@ -140,7 +147,7 @@ describe("gathering engine", () => {
 
     expect(experienceForSkill(result.state.character.skills, "mining")).toBe(7);
 
-    expect(result.state.activeActivity?.status).toBe("blocked");
+    expect(result.state.activeActivity?.status).toBe("running");
     expect(result.state.randomState).not.toBe(state.randomState);
   });
 
@@ -160,5 +167,149 @@ describe("gathering engine", () => {
     expect(result.summary.completedActions).toBe(0);
     expect(result.state.activeActivity?.status).toBe("blocked");
     expect(result.state.randomState).toBe(state.randomState);
+  });
+});
+
+describe("automated banking", () => {
+  it("starts banking when the backpack fills", () => {
+    const started = startGathering();
+
+    const result = advanceGame(started, START + 50_000);
+
+    expect(result.summary.completedActions).toBe(10);
+    expect(result.summary.bankTrips).toBe(0);
+
+    expect(result.state.activeActivity).toMatchObject({
+      siteId: "eldvik-birch-grove",
+      phase: "banking",
+      elapsedMs: 0,
+      status: "running",
+    });
+
+    expect(countBankItem(result.state.bank, "birch-log")).toBe(0);
+    expect(
+      countInventoryItem(result.state.character.backpack, "birch-log"),
+    ).toBe(10);
+  });
+
+  it("preserves partial banking progress", () => {
+    const started = startGathering();
+
+    const first = advanceGame(started, START + 50_000);
+    const second = advanceGame(first.state, START + 90_000);
+
+    expect(second.state.activeActivity).toMatchObject({
+      phase: "banking",
+      elapsedMs: 40_000,
+    });
+
+    expect(countBankItem(second.state.bank, "birch-log")).toBe(0);
+    expect(second.summary.bankTrips).toBe(0);
+  });
+
+  it("deposits resources after 60 seconds and resumes gathering", () => {
+    const started = startGathering();
+
+    const result = advanceGame(started, START + 115_000);
+
+    expect(result.summary.completedActions).toBe(11);
+    expect(result.summary.bankTrips).toBe(1);
+    expect(result.summary.itemsBanked).toEqual({
+      "birch-log": 10,
+    });
+
+    expect(countBankItem(result.state.bank, "birch-log")).toBe(10);
+
+    expect(
+      countInventoryItem(result.state.character.backpack, "birch-log"),
+    ).toBe(1);
+
+    expect(result.state.activeActivity).toMatchObject({
+      phase: "working",
+      elapsedMs: 0,
+      status: "running",
+    });
+  });
+
+  it("produces identical states across simulation boundaries", () => {
+    const started = startGathering("eldvik-copper-mine");
+    const end = START + 86_400_000;
+
+    const direct = advanceGame(started, end);
+
+    const first = advanceGame(started, START + 21_000);
+    const second = advanceGame(first.state, START + 75_000);
+    const third = advanceGame(second.state, end);
+
+    expect(third.state).toEqual(direct.state);
+  });
+
+  it("supports many banking cycles during offline simulation", () => {
+    const started = startGathering();
+
+    const result = advanceGame(started, START + 86_400_000);
+
+    expect(result.summary.bankTrips).toBe(785);
+    expect(result.summary.completedActions).toBe(7_860);
+
+    expect(countBankItem(result.state.bank, "birch-log")).toBe(7_850);
+
+    expect(
+      countInventoryItem(result.state.character.backpack, "birch-log"),
+    ).toBe(10);
+
+    expect(result.state.activeActivity?.phase).toBe("banking");
+    expect(result.events).toEqual([]);
+  });
+
+  it("can stop gathering during an unfinished banking operation", () => {
+    const started = startGathering();
+
+    const banking = advanceGame(started, START + 70_000);
+
+    const stopped = executeCommand(
+      banking.state,
+      { type: "STOP_ACTIVITY" },
+      START + 75_000,
+    );
+
+    expect(stopped.state.activeActivity).toBeNull();
+    expect(countBankItem(stopped.state.bank, "birch-log")).toBe(0);
+
+    expect(
+      countInventoryItem(stopped.state.character.backpack, "birch-log"),
+    ).toBe(10);
+  });
+
+  it("blocks when the location has no accessible bank", () => {
+    const location = gameContent.locations.eldvik;
+    if (!location) throw new Error("Missing Eldvik location");
+
+    const content: GameContent = {
+      ...gameContent,
+      locations: {
+        ...gameContent.locations,
+        eldvik: {
+          ...location,
+          facilities: [],
+        },
+      },
+    };
+
+    const started = startGathering();
+    const result = simulateGame(started, content, START + 86_400_000);
+
+    expect(result.summary.completedActions).toBe(10);
+    expect(result.summary.bankTrips).toBe(0);
+    expect(result.state.activeActivity?.status).toBe("blocked");
+    expect(result.events).toEqual([
+      {
+        type: "ACTIVITY_BLOCKED",
+        siteId: "eldvik-birch-grove",
+        activityId: "chop-birch",
+        timestamp: START + 50_000,
+        reason: "BANK_UNAVAILABLE",
+      },
+    ]);
   });
 });

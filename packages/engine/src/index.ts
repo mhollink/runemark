@@ -55,6 +55,7 @@ export function executeCommand(
         siteId: site.id,
         elapsedMs: 0,
         status: "running",
+        phase: "working",
       },
     },
   };

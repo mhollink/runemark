@@ -12,12 +12,12 @@ export const mineCopper = {
     kind: "all",
     rewards: [
       {
-        kind: "fixed",
-        drops: [{ itemId: "copper-ore", quantity: 1 }],
-      },
-      {
         kind: "table",
         tableId: "mining-gems",
+      },
+      {
+        kind: "fixed",
+        drops: [{ itemId: "copper-ore", quantity: 1 }],
       },
     ],
   },

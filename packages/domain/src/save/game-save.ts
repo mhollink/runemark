@@ -1,6 +1,6 @@
 import type { ActivitySession } from "../activities/activity-session";
+import { type BankStorage, createBankStorage } from "../bank/bank";
 import type { Character } from "../character/character";
-import { createInventory, type Inventory } from "../inventory/inventory";
 import {
   assertNonEmptyString,
   assertNonNegativeSafeInteger,
@@ -15,7 +15,7 @@ export interface GameSave {
   readonly lastSimulatedAt: number;
   readonly randomState: number;
   readonly character: Character;
-  readonly bank: Inventory;
+  readonly bank: BankStorage;
   readonly activeActivity: ActivitySession | null;
 }
 
@@ -46,7 +46,7 @@ export function createGameSave(input: NewGameSave): GameSave {
     lastSimulatedAt: input.lastSimulatedAt,
     randomState: input.randomState,
     character: input.character,
-    bank: createInventory(null),
+    bank: createBankStorage(),
     activeActivity: null,
   };
 }
