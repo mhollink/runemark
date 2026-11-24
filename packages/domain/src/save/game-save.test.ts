@@ -9,12 +9,20 @@ const character = createCharacter({
   id: "hero-1",
   name: "Eira",
   locationId: "starter-village",
+  skills: [
+    {
+      category: "combat",
+      id: "constitution",
+      initialLevel: 10,
+      name: "Constitution",
+    },
+  ],
 });
 
 describe("Character and GameSave", () => {
-  it("creates a new character with 16 backpack slots and no experience", () => {
+  it("creates a new character with 10 backpack slots and no experience", () => {
     expect(character.backpack.capacity).toBe(INITIAL_BACKPACK_CAPACITY);
-    expect(character.skills).toEqual({});
+    expect(character.skills).toEqual({ constitution: 1222 });
     expect(character.currentHitpoints).toBe(10);
   });
 
@@ -54,6 +62,7 @@ describe("Character and GameSave", () => {
         id: "hero-2",
         name: " ",
         locationId: "starter-village",
+        skills: [],
       }),
     ).toThrow(RangeError);
   });

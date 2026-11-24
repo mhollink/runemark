@@ -5,4 +5,5 @@ export interface SkillDefinition {
   readonly id: SkillId;
   readonly name: string;
   readonly category: SkillCategory;
+  readonly initialLevel?: number;
 }

@@ -71,3 +71,16 @@ export function experienceUntilNextLevel(experience: number): number | null {
     ? null
     : experienceForLevel(level + 1) - experience;
 }
+
+export function progressTowardsNextLevel(experience: number): number {
+  const level = levelForExperience(experience);
+
+  if (level === MAX_SKILL_LEVEL) {
+    return 1;
+  }
+
+  const current = experienceForLevel(level);
+  const next = experienceForLevel(level + 1);
+
+  return (experience - current) / (next - current);
+}

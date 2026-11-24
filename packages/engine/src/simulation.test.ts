@@ -25,6 +25,7 @@ function newGame(): GameSave {
       id: "test-character",
       name: "Eira",
       locationId: "eldvik",
+      skills: [],
     }),
   });
 }

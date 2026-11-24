@@ -173,12 +173,33 @@ describe("game content", () => {
           gameContent.locations[site.locationId],
           `${site.id}: unknown location ${site.locationId}`,
         ).toBeDefined();
+        expect(site.activityIds.length, site.id).toBeGreaterThan(0);
+        expect(new Set(site.activityIds).size, site.id).toBe(
+          site.activityIds.length,
+        );
         for (const activityId of site.activityIds) {
           expect(
             gameContent.activities[activityId],
             `${site.id}: unknown activity ${activityId}`,
           ).toBeDefined();
         }
+      }
+    });
+
+    it("all travel routes connect valid and distinct nodes", () => {
+      const nodes = new Set([
+        ...Object.keys(gameContent.locations),
+        ...Object.keys(gameContent.sites),
+      ]);
+
+      for (const route of Object.values(gameContent.routes)) {
+        expect(nodes.has(route.fromId), route.id).toBe(true);
+        expect(nodes.has(route.toId), route.id).toBe(true);
+        expect(route.fromId, route.id).not.toBe(route.toId);
+
+        expect(Number.isSafeInteger(route.durationMs), route.id).toBe(true);
+
+        expect(route.durationMs, route.id).toBeGreaterThan(0);
       }
     });
   });
@@ -207,6 +228,47 @@ describe("game content", () => {
       }
     });
 
+    it("production recipes have unique and distinct inputs and outputs", () => {
+      for (const activity of Object.values(gameContent.activities)) {
+        if (activity.kind !== "production") {
+          continue;
+        }
+
+        const inputs = activity.inputs.map(({ itemId }) => itemId);
+        const outputs = activity.outputs.map(({ itemId }) => itemId);
+
+        expect(new Set(inputs).size, activity.id).toBe(inputs.length);
+        expect(new Set(outputs).size, activity.id).toBe(outputs.length);
+
+        for (const itemId of inputs) {
+          expect(outputs, activity.id).not.toContain(itemId);
+        }
+      }
+    });
+
+    it("all non-combat activities have valid progression properties", () => {
+      for (const activity of Object.values(gameContent.activities)) {
+        if (activity.kind === "combat") {
+          continue;
+        }
+
+        expect(Number.isSafeInteger(activity.durationMs), activity.id).toBe(
+          true,
+        );
+
+        expect(activity.durationMs, activity.id).toBeGreaterThan(0);
+
+        expect(
+          Number.isSafeInteger(activity.experiencePerAction),
+          activity.id,
+        ).toBe(true);
+
+        expect(activity.experiencePerAction, activity.id).toBeGreaterThan(0);
+
+        expect(gameContent.skills[activity.skillId], activity.id).toBeDefined();
+      }
+    });
+
     it("all combat activities are valid", () => {
       for (const activity of Object.values(gameContent.activities)) {
         if (activity.kind === "combat") {
@@ -220,6 +282,27 @@ describe("game content", () => {
     it("all monster loot is valid", () => {
       for (const monster of Object.values(gameContent.monsters)) {
         validateLoot(monster.loot, `monster:${monster.id}`);
+      }
+    });
+
+    it("all monsters have valid combat statistics", () => {
+      for (const monster of Object.values(gameContent.monsters)) {
+        const { combat } = monster;
+
+        for (const value of [
+          combat.maxHitpoints,
+          combat.maxHit,
+          combat.attackIntervalMs,
+        ]) {
+          expect(Number.isSafeInteger(value), monster.id).toBe(true);
+          expect(value, monster.id).toBeGreaterThan(0);
+        }
+
+        expect(Number.isFinite(combat.accuracy)).toBe(true);
+        expect(combat.accuracy).toBeGreaterThanOrEqual(0);
+        expect(combat.accuracy).toBeLessThanOrEqual(1);
+
+        expect(["melee", "ranged", "magic"]).toContain(combat.attackType);
       }
     });
   });

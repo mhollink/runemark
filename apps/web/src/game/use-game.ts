@@ -31,7 +31,7 @@ function createInitialGame(): GameSave {
       id: crypto.randomUUID(),
       name: "Adventurer",
       locationId: "eldvik",
-      startingHitpoints: 10,
+      skills: Object.values(gameContent.skills),
     }),
   });
 }

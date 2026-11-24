@@ -1,9 +1,13 @@
-import { levelForExperience } from "../experience/experience-table";
+import {
+  experienceForLevel,
+  levelForExperience,
+  MIN_SKILL_LEVEL,
+} from "../experience/experience-table";
 import {
   assertNonEmptyString,
   assertPositiveSafeInteger,
 } from "../shared/validation";
-import type { SkillId } from "./skill";
+import type { SkillDefinition, SkillId } from "./skill";
 
 /** A sparse XP ledger. An untrained skill starts at zero XP. */
 export type SkillProgress = Readonly<Record<SkillId, number>>;
@@ -37,4 +41,15 @@ export function awardSkillExperience(
     );
   }
   return { ...progress, [skillId]: nextExperience };
+}
+
+export function createSkillProgress(
+  skills: readonly SkillDefinition[],
+): SkillProgress {
+  return Object.fromEntries(
+    skills.map((skill) => [
+      skill.id,
+      experienceForLevel(skill.initialLevel ?? MIN_SKILL_LEVEL),
+    ]),
+  );
 }

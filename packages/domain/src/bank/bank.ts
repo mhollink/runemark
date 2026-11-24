@@ -1,7 +1,10 @@
 import type { Inventory } from "../inventory/inventory";
 import { InsufficientItemsError } from "../inventory/inventory";
 import type { ItemId } from "../items/item-definition";
-import { assertPositiveSafeInteger } from "../shared/validation";
+import {
+  assertNonEmptyString,
+  assertPositiveSafeInteger,
+} from "../shared/validation";
 
 export interface BankStorage {
   readonly items: Readonly<Record<ItemId, number>>;
@@ -12,6 +15,7 @@ export function createBankStorage(): BankStorage {
 }
 
 export function countBankItem(bank: BankStorage, itemId: ItemId): number {
+  assertNonEmptyString(itemId, "Item ID");
   return Object.hasOwn(bank.items, itemId) ? (bank.items[itemId] ?? 0) : 0;
 }
 

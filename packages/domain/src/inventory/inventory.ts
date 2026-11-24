@@ -1,4 +1,3 @@
-import { INITIAL_BACKPACK_CAPACITY } from "../character/character";
 import type { ItemDefinition, ItemId } from "../items/item-definition";
 import {
   assertNonEmptyString,
@@ -25,9 +24,7 @@ export class InsufficientItemsError extends Error {
   override name = "InsufficientItemsError";
 }
 
-export function createInventory(
-  capacity: number = INITIAL_BACKPACK_CAPACITY,
-): Inventory {
+export function createInventory(capacity: number): Inventory {
   assertNonNegativeSafeInteger(capacity, "Inventory capacity");
   return { capacity, slots: [] };
 }
@@ -64,10 +61,7 @@ export function addInventoryItem(
     ? inventory.slots.findIndex((slot) => slot.itemId === item.id)
     : -1;
   const requiredSlots = stackIndex >= 0 ? 0 : item.stackable ? 1 : quantity;
-  if (
-    inventory.capacity !== null &&
-    inventory.slots.length + requiredSlots > inventory.capacity
-  ) {
+  if (inventory.slots.length + requiredSlots > inventory.capacity) {
     throw new InventoryCapacityError("Not enough inventory slots");
   }
 

@@ -3,6 +3,8 @@ import {
   experienceForLevel,
   experienceUntilNextLevel,
   levelForExperience,
+  MAX_SKILL_LEVEL,
+  progressTowardsNextLevel,
 } from "./experience-table";
 
 describe("ExperienceTable", () => {
@@ -31,17 +33,34 @@ describe("ExperienceTable", () => {
     });
   });
 
+  it("levels up exactly at every experience threshold", () => {
+    for (let level = 2; level <= MAX_SKILL_LEVEL; level++) {
+      const threshold = experienceForLevel(level);
+
+      expect(levelForExperience(threshold)).toBe(level);
+      expect(levelForExperience(threshold - 1)).toBe(level - 1);
+    }
+  });
+
   it("reports remaining XP without a next level after 99", () => {
     expect(experienceUntilNextLevel(417)).toBe(1);
     expect(experienceUntilNextLevel(10_249_141)).toBeNull();
   });
 
-    it("rejects invalid levels and experience", () => {
-        expect(() => experienceForLevel(0)).toThrow(RangeError);
-        expect(() => experienceForLevel(100)).toThrow(RangeError);
-        expect(() => experienceForLevel(1.5)).toThrow(RangeError);
-        expect(() => levelForExperience(-1)).toThrow(RangeError);
-        expect(() => levelForExperience(1.5)).toThrow(RangeError);
-        expect(() => levelForExperience(NaN)).toThrow(RangeError);
-    });
+  it("rejects invalid levels and experience", () => {
+    expect(() => experienceForLevel(0)).toThrow(RangeError);
+    expect(() => experienceForLevel(100)).toThrow(RangeError);
+    expect(() => experienceForLevel(1.5)).toThrow(RangeError);
+    expect(() => levelForExperience(-1)).toThrow(RangeError);
+    expect(() => levelForExperience(1.5)).toThrow(RangeError);
+    expect(() => levelForExperience(NaN)).toThrow(RangeError);
+  });
+
+  it("shows the progress towards the next level", () => {
+    expect(progressTowardsNextLevel(418)).toBe(0);
+    expect(progressTowardsNextLevel(417).toFixed(2)).toBe("0.99");
+    expect(progressTowardsNextLevel(358).toFixed(2)).toBe("0.50");
+    expect(progressTowardsNextLevel(10_000).toFixed(2)).toBe("0.16");
+    expect(progressTowardsNextLevel(10249141)).toBe(1);
+  });
 });
