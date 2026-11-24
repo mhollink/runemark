@@ -7,6 +7,7 @@ import {
   createInventory,
   experienceForSkill,
   type GameSave,
+  type GatheringActivityDefinition,
 } from "@runemark/domain";
 import { describe, expect, it } from "vitest";
 import { advanceGame, executeCommand } from "./index";
@@ -83,7 +84,9 @@ describe("gathering engine", () => {
   });
 
   it("discards overflowing loot but still awards XP", () => {
-    const mining = gameContent.activities["mine-copper"];
+    const mining = gameContent.activities[
+      "mine-copper"
+    ] as GatheringActivityDefinition;
     if (!mining) throw new Error("Missing mining activity");
 
     const content: GameContent = {

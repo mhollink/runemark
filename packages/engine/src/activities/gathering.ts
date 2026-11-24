@@ -337,6 +337,7 @@ export function simulateGathering(
     summary: {
       completedActions,
       itemsGained,
+      itemsConsumed: {},
       experienceGained:
         completedActions === 0 ? {} : { [activity.skillId]: experience },
       bankTrips,

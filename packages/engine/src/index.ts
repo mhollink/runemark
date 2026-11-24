@@ -1,6 +1,7 @@
 import { gameContent } from "@runemark/content";
 import type { GameSave } from "@runemark/domain";
-import { findShortestRoute } from "./navigation/find-route";
+import { tryProduce } from "./activities/production-operations";
+import { findNearestBank, findShortestRoute } from "./navigation/find-route";
 import { simulateGame } from "./simulation";
 import type { GameCommand, SimulationResult } from "./simulation-types";
 
@@ -34,29 +35,27 @@ export function executeCommand(
   }
 
   const site = gameContent.sites[command.siteId];
-
   if (!site) {
     throw new Error(`Unknown activity site: ${command.siteId}`);
   }
 
-  if (!gameContent.activities[site.activityId]) {
+  const activity = gameContent.activities[site.activityId];
+  if (!activity) {
     throw new Error(`Unknown activity: ${site.activityId}`);
   }
 
-  if (site.locationId !== result.state.character.locationId) {
-    throw new Error(
-      `Activity site ${site.id} is not available at this location`,
-    );
-  }
+  const character = result.state.character;
 
-  const legs = findShortestRoute(
-    gameContent,
-    result.state.character.nodeId,
-    site.id,
-  );
+  const requiresBank =
+    activity.kind === "production" &&
+    tryProduce(character.backpack, activity, gameContent) === null;
+
+  const legs = requiresBank
+    ? findNearestBank(gameContent, character.nodeId)
+    : findShortestRoute(gameContent, character.nodeId, site.id);
 
   if (legs === null) {
-    throw new Error(`No accessible route to ${site.id}`);
+    throw new Error(`No accessible route for ${site.id}`);
   }
 
   return {
@@ -66,7 +65,13 @@ export function executeCommand(
       activeActivity: {
         siteId: site.id,
         status: "running",
-        phase: legs.length === 0 ? "working" : "travel-to-site",
+        phase: requiresBank
+          ? legs.length === 0
+            ? "banking"
+            : "travel-to-bank"
+          : legs.length === 0
+            ? "working"
+            : "travel-to-site",
         elapsedMs: 0,
         travel: legs.length === 0 ? null : { legs, index: 0 },
       },

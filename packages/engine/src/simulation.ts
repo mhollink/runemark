@@ -1,11 +1,13 @@
 import type { GameContent } from "@runemark/content";
 import type { GameSave } from "@runemark/domain";
 import { simulateGathering } from "./activities/gathering";
+import { simulateProduction } from "./activities/production";
 import type { SimulationResult, SimulationSummary } from "./simulation-types";
 
 const EMPTY_SUMMARY: SimulationSummary = {
   completedActions: 0,
   itemsGained: {},
+  itemsConsumed: {},
   experienceGained: {},
   bankTrips: 0,
   itemsBanked: {},
@@ -53,5 +55,7 @@ export function simulateGame(
   switch (activity.kind) {
     case "gathering":
       return simulateGathering(state, content, site, activity, until);
+    case "production":
+      return simulateProduction(state, content, site, activity, until);
   }
 }

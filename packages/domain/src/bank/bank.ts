@@ -1,5 +1,7 @@
 import type { Inventory } from "../inventory/inventory";
+import { InsufficientItemsError } from "../inventory/inventory";
 import type { ItemId } from "../items/item-definition";
+import { assertPositiveSafeInteger } from "../shared/validation";
 
 export interface BankStorage {
   readonly items: Readonly<Record<ItemId, number>>;
@@ -29,6 +31,31 @@ export function depositInventory(
     }
 
     items[slot.itemId] = total;
+  }
+
+  return { items };
+}
+
+export function withdrawBankItem(
+  bank: BankStorage,
+  itemId: ItemId,
+  quantity: number,
+): BankStorage {
+  assertPositiveSafeInteger(quantity, "Quantity");
+
+  const available = countBankItem(bank, itemId);
+
+  if (available < quantity) {
+    throw new InsufficientItemsError("Not enough items in bank");
+  }
+
+  const items = { ...bank.items };
+  const remaining = available - quantity;
+
+  if (remaining === 0) {
+    delete items[itemId];
+  } else {
+    items[itemId] = remaining;
   }
 
   return { items };
