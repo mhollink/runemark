@@ -1,6 +1,7 @@
 import { gameContent } from "@runemark/content";
 import { experienceForSkill } from "@runemark/domain";
 import { BANKING_DURATION_MS } from "@runemark/engine";
+import { OfflineSummary } from "./game/OfflineSummary";
 import { useGame } from "./game/use-game";
 
 function formatDuration(milliseconds: number): string {
@@ -21,7 +22,30 @@ function displayName(value: string): string {
 }
 
 function App() {
-  const { game, startActivity, stopActivity } = useGame();
+  const {
+    game,
+    offlineReport,
+    loadError,
+    storageError,
+    startActivity,
+    stopActivity,
+    dismissOfflineReport,
+    resetSave,
+  } = useGame();
+
+  if (!game) {
+    return (
+      <main className="game-shell">
+        <h1>Unable to load Runemark</h1>
+        <p>{loadError}</p>
+        <p>Your existing save has not been overwritten.</p>
+        {storageError && <p role="alert">{storageError}</p>}
+        <button type="button" className="action-button" onClick={resetSave}>
+          Start a new game
+        </button>
+      </main>
+    );
+  }
 
   const location = gameContent.locations[game.character.locationId];
   const region = location ? gameContent.regions[location.regionId] : undefined;
@@ -93,6 +117,19 @@ function App() {
           <strong>{location?.name ?? game.character.locationId}</strong>
         </div>
       </header>
+
+      {storageError && (
+        <p role="alert" className="storage-warning">
+          {storageError}
+        </p>
+      )}
+
+      {offlineReport && (
+        <OfflineSummary
+          report={offlineReport}
+          onDismiss={dismissOfflineReport}
+        />
+      )}
 
       <div className="game-grid">
         <aside className="panel site-panel">
