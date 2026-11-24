@@ -350,3 +350,25 @@ describe("automated banking", () => {
     expect(third.state).toEqual(direct.state);
   });
 });
+
+describe("fishing", () => {
+  it("catches fish and banks a full backpack", () => {
+    const initial = startGathering("eldvik-shore");
+
+    const first = advanceGame(initial, START + 38_000);
+
+    expect(first.summary.itemsGained).toEqual({
+      "raw-herring": 1,
+    });
+    expect(first.summary.experienceGained).toEqual({
+      fishing: 8,
+    });
+
+    const result = advanceGame(initial, START + 160_000);
+
+    expect(result.summary.completedActions).toBe(10);
+    expect(result.summary.bankTrips).toBe(1);
+    expect(countBankItem(result.state.bank, "raw-herring")).toBe(10);
+    expect(result.state.activeActivity?.status).toBe("running");
+  });
+});

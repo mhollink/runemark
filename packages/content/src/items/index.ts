@@ -3,6 +3,7 @@ import { bones } from "./bones";
 import { copperOre } from "./copper-ore";
 import { feather } from "./feather";
 import { rawChicken } from "./raw-chicken";
+import { rawHerring } from "./raw-herring";
 import { uncutRuby } from "./uncut-ruby";
 import { uncutSapphire } from "./uncut-sapphire";
 
@@ -14,4 +15,5 @@ export const items = [
   feather,
   rawChicken,
   bones,
+  rawHerring,
 ];
