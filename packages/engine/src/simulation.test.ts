@@ -25,14 +25,19 @@ function newGame(): GameSave {
       id: "test-character",
       name: "Eira",
       locationId: "eldvik",
-      startingHitpoints: 10,
     }),
   });
 }
 
-function startGathering(siteId = "eldvik-birch-grove"): GameSave {
-  return executeCommand(newGame(), { type: "START_ACTIVITY", siteId }, START)
-    .state;
+function startGathering(
+  siteId = "eldvik-birch-grove",
+  activityId = "chop-birch",
+): GameSave {
+  return executeCommand(
+    newGame(),
+    { type: "START_ACTIVITY", siteId, activityId },
+    START,
+  ).state;
 }
 
 describe("gathering engine", () => {
@@ -53,7 +58,7 @@ describe("gathering engine", () => {
   });
 
   it("produces identical state regardless of simulation chunks", () => {
-    const initial = startGathering("eldvik-copper-mine");
+    const initial = startGathering("eldvik-copper-mine", "mine-copper");
 
     const direct = advanceGame(initial, START + 60_000);
 
@@ -128,6 +133,7 @@ describe("gathering engine", () => {
       },
       activeActivity: {
         siteId: "eldvik-copper-mine",
+        activityId: "mine-copper",
         elapsedMs: 0,
         status: "running",
         phase: "working",
@@ -237,7 +243,7 @@ describe("automated banking", () => {
   });
 
   it("produces identical states across simulation boundaries", () => {
-    const started = startGathering("eldvik-copper-mine");
+    const started = startGathering("eldvik-copper-mine", "mine-copper");
     const end = START + 86_400_000;
 
     const direct = advanceGame(started, end);
@@ -356,7 +362,7 @@ describe("automated banking", () => {
 
 describe("fishing", () => {
   it("catches fish and banks a full backpack", () => {
-    const initial = startGathering("eldvik-shore");
+    const initial = startGathering("eldvik-shore", "catch-herring");
 
     const first = advanceGame(initial, START + 38_000);
 

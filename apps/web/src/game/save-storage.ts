@@ -39,14 +39,18 @@ function isInventory(value: unknown): boolean {
 
 function isActivitySession(value: unknown): boolean {
   if (value === null) return true;
-  if (!isRecord(value) || typeof value.siteId !== "string") {
+  if (
+    !isRecord(value) ||
+    typeof value.siteId !== "string" ||
+    typeof value.activityId !== "string"
+  ) {
     return false;
   }
 
   const site = gameContent.sites[value.siteId];
-  const activity = site && gameContent.activities[site.activityId];
+  const activity = gameContent.activities[value.activityId];
 
-  if (!activity) return false;
+  if (!site || !activity) return false;
 
   if (value.status !== "running" && value.status !== "blocked") {
     return false;

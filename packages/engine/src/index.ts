@@ -35,20 +35,22 @@ export function executeCommand(
   }
 
   const site = gameContent.sites[command.siteId];
-  if (!site) {
-    throw new Error(`Unknown activity site: ${command.siteId}`);
+  const activity = gameContent.activities[command.activityId];
+  if (!site || !activity) {
+    throw new Error(
+      `Unknown site or activity: ${command.siteId}/${command.activityId}`,
+    );
   }
-
-  const activity = gameContent.activities[site.activityId];
-  if (!activity) {
-    throw new Error(`Unknown activity: ${site.activityId}`);
+  if (!site.activityIds.includes(activity.id)) {
+    throw new Error(`Activity ${activity.id} is not available at ${site.id}`);
   }
 
   const character = result.state.character;
 
   const requiresBank =
-    activity.kind === "production" &&
-    tryProduce(character.backpack, activity, gameContent) === null;
+    (activity.kind === "production" &&
+      tryProduce(character.backpack, activity, gameContent) === null) ||
+    (activity.kind === "combat" && character.currentHitpoints === 0);
 
   const legs = requiresBank
     ? findNearestBank(gameContent, character.nodeId)
@@ -64,6 +66,7 @@ export function executeCommand(
       ...result.state,
       activeActivity: {
         siteId: site.id,
+        activityId: activity.id,
         status: "running",
         phase: requiresBank
           ? legs.length === 0

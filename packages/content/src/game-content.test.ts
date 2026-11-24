@@ -170,43 +170,47 @@ describe("game content", () => {
     it("all sites have defined activities and locations", () => {
       for (const site of Object.values(gameContent.sites)) {
         expect(
-          gameContent.activities[site.activityId],
-          `${site.id}: unknown activity ${site.activityId}`,
-        ).toBeDefined();
-
-        expect(
           gameContent.locations[site.locationId],
           `${site.id}: unknown location ${site.locationId}`,
         ).toBeDefined();
+        for (const activityId of site.activityIds) {
+          expect(
+            gameContent.activities[activityId],
+            `${site.id}: unknown activity ${activityId}`,
+          ).toBeDefined();
+        }
       }
     });
   });
 
   describe("activities", () => {
-    it("all activities have valid duration and experience rewards", () => {
-      for (const activity of Object.values(gameContent.activities)) {
-        expect(
-          Number.isSafeInteger(activity.durationMs),
-          `${activity.id}: invalid duration`,
-        ).toBe(true);
-
-        expect(activity.durationMs, activity.id).toBeGreaterThan(0);
-
-        expect(
-          Number.isSafeInteger(activity.experiencePerAction),
-          `${activity.id}: invalid experience reward`,
-        ).toBe(true);
-
-        expect(activity.experiencePerAction, activity.id).toBeGreaterThan(0);
-
-        expect(activity.skillId.trim(), activity.id).not.toBe("");
-      }
-    });
-
     it("all gathering rewards are valid", () => {
       for (const activity of Object.values(gameContent.activities)) {
         if (activity.kind === "gathering") {
           validateLoot(activity.rewards, `activity:${activity.id}`);
+        }
+      }
+    });
+
+    it("all production inputs/outputs are valid", () => {
+      for (const activity of Object.values(gameContent.activities)) {
+        if (activity.kind === "production") {
+          validateLoot(
+            { drops: activity.inputs, kind: "fixed" },
+            `activity:${activity.id}.inputs`,
+          );
+          validateLoot(
+            { drops: activity.outputs, kind: "fixed" },
+            `activity:${activity.id}.outputs`,
+          );
+        }
+      }
+    });
+
+    it("all combat activities are valid", () => {
+      for (const activity of Object.values(gameContent.activities)) {
+        if (activity.kind === "combat") {
+          expect(gameContent.monsters[activity.monsterId]).toBeDefined();
         }
       }
     });

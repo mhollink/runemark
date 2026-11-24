@@ -52,12 +52,6 @@ describe("Inventory", () => {
     expect(() => addInventoryItem(inventory, ore, 0)).toThrow(RangeError);
   });
 
-  it("allows unlimited bank storage", () => {
-    const bank = addInventoryItem(createInventory(null), axe, 100);
-    expect(usedInventorySlots(bank)).toBe(100);
-    expect(availableInventorySlots(bank)).toBeNull();
-  });
-
   it("removes both partial stacks and individual items immutably", () => {
     const mixed = addInventoryItem(
       addInventoryItem(createInventory(4), ore, 9),

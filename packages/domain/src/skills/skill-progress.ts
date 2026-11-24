@@ -1,11 +1,9 @@
-import type { ExperienceTable } from "../experience/experience-table";
 import { levelForExperience } from "../experience/experience-table";
 import {
   assertNonEmptyString,
   assertPositiveSafeInteger,
 } from "../shared/validation";
-
-export type SkillId = string;
+import type { SkillId } from "./skill";
 
 /** A sparse XP ledger. An untrained skill starts at zero XP. */
 export type SkillProgress = Readonly<Record<SkillId, number>>;
@@ -21,12 +19,8 @@ export function experienceForSkill(
 export function levelForSkill(
   progress: SkillProgress,
   skillId: SkillId,
-  experienceTable: ExperienceTable,
 ): number {
-  return levelForExperience(
-    experienceTable,
-    experienceForSkill(progress, skillId),
-  );
+  return levelForExperience(experienceForSkill(progress, skillId));
 }
 
 export function awardSkillExperience(

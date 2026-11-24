@@ -1,9 +1,9 @@
 import type { GameContent } from "@runemark/content";
-import type { ItemDrop, LootNode } from "@runemark/domain";
+import type { ItemQuantity, LootNode } from "@runemark/domain";
 import { nextRandom } from "./random";
 
 export interface LootResolution {
-  readonly drops: readonly ItemDrop[];
+  readonly drops: readonly ItemQuantity[];
   readonly randomState: number;
 }
 
@@ -87,7 +87,7 @@ export function resolveLoot(
     }
 
     case "all": {
-      const drops: ItemDrop[] = [];
+      const drops: ItemQuantity[] = [];
       let currentRandomState = randomState;
 
       for (const reward of node.rewards) {
@@ -115,7 +115,7 @@ export function guaranteedDrops(
   node: LootNode,
   content: GameContent,
   visited: ReadonlySet<string> = new Set(),
-): readonly ItemDrop[] {
+): readonly ItemQuantity[] {
   switch (node.kind) {
     case "fixed":
       return node.drops;

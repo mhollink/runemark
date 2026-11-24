@@ -1,5 +1,6 @@
-import type { ItemDrop, LootNode } from "../loot/loot-node";
-import type { SkillId } from "../skills/skill-progress";
+import type { ItemQuantity } from "../items/item-quantity";
+import type { LootNode } from "../loot/loot-node";
+import type { SkillId } from "../skills/skill";
 
 export interface GatheringActivityDefinition {
   readonly id: string;
@@ -18,10 +19,18 @@ export interface ProductionActivityDefinition {
   readonly skillId: SkillId;
   readonly durationMs: number;
   readonly experiencePerAction: number;
-  readonly inputs: readonly ItemDrop[];
-  readonly outputs: readonly ItemDrop[];
+  readonly inputs: readonly ItemQuantity[];
+  readonly outputs: readonly ItemQuantity[];
+}
+
+export interface CombatActivityDefinition {
+  readonly id: string;
+  readonly kind: "combat";
+  readonly name: string;
+  readonly monsterId: string;
 }
 
 export type ActivityDefinition =
   | GatheringActivityDefinition
-  | ProductionActivityDefinition;
+  | ProductionActivityDefinition
+  | CombatActivityDefinition;

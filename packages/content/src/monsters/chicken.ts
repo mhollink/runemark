@@ -3,7 +3,13 @@ import type { MonsterDefinition } from "@runemark/domain";
 export const chicken = {
   id: "chicken",
   name: "Chicken",
-
+  combat: {
+    maxHitpoints: 3,
+    attackType: "melee",
+    attackIntervalMs: 4_000,
+    maxHit: 1,
+    accuracy: 0.25,
+  },
   loot: {
     kind: "all",
     rewards: [

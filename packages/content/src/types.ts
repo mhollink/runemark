@@ -6,6 +6,7 @@ import type {
   LootTableDefinition,
   MonsterDefinition,
   RegionDefinition,
+  SkillDefinition,
   TravelRouteDefinition,
 } from "@runemark/domain";
 
@@ -20,4 +21,5 @@ export interface GameContent {
   readonly regions: Readonly<Record<string, RegionDefinition>>;
   readonly lootTables: Readonly<Record<string, LootTableDefinition>>;
   readonly routes: Readonly<Record<string, TravelRouteDefinition>>;
+  readonly skills: Readonly<Record<string, SkillDefinition>>;
 }

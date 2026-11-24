@@ -1,25 +1,20 @@
-import type { ItemId } from "../items/item-definition";
-
-export interface ItemDrop {
-  readonly itemId: ItemId;
-  readonly quantity: number;
-}
+import type { ItemQuantity } from "../items/item-quantity";
 
 export type LootNode =
   | { kind: "nothing" }
-  | { kind: "fixed"; drops: readonly ItemDrop[] }
-  | { kind: "table"; tableId: string }
+  | { kind: "fixed"; drops: readonly ItemQuantity[] }
+  | { kind: "table"; readonly tableId: string }
   | {
       kind: "conditional";
-      oneIn: number;
-      success: LootNode;
-      failure: LootNode;
+      readonly oneIn: number;
+      readonly success: LootNode;
+      readonly failure: LootNode;
     }
   | {
       kind: "weighted";
       entries: readonly {
-        weight: number;
-        reward: LootNode;
+        readonly weight: number;
+        readonly reward: LootNode;
       }[];
     }
   | {

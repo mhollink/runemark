@@ -9,7 +9,6 @@ const character = createCharacter({
   id: "hero-1",
   name: "Eira",
   locationId: "starter-village",
-  startingHitpoints: 10,
 });
 
 describe("Character and GameSave", () => {
@@ -55,7 +54,6 @@ describe("Character and GameSave", () => {
         id: "hero-2",
         name: " ",
         locationId: "starter-village",
-        startingHitpoints: 10,
       }),
     ).toThrow(RangeError);
   });

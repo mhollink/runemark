@@ -19,9 +19,7 @@ export function depositInventory(
   bank: BankStorage,
   inventory: Inventory,
 ): BankStorage {
-  const items: Record<ItemId, number> = {
-    ...bank.items,
-  };
+  const items: Record<ItemId, number> = { ...bank.items };
 
   for (const slot of inventory.slots) {
     const total = (items[slot.itemId] ?? 0) + slot.quantity;

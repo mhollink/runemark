@@ -1,5 +1,6 @@
 export interface ActivitySiteDefinition {
   readonly id: string;
   readonly locationId: string;
-  readonly activityId: string;
+  readonly name: string;
+  readonly activityIds: readonly string[];
 }

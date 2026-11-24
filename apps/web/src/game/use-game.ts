@@ -194,7 +194,7 @@ export function useGame() {
     };
   }, [saveNow]);
 
-  const startActivity = useCallback((siteId: string) => {
+  const startActivity = useCallback((siteId: string, activityId: string) => {
     const now = Date.now();
     forceSave.current = true;
 
@@ -205,7 +205,7 @@ export function useGame() {
         ...current,
         game: executeCommand(
           current.game,
-          { type: "START_ACTIVITY", siteId },
+          { type: "START_ACTIVITY", siteId, activityId },
           Math.max(now, current.game.lastSimulatedAt),
         ).state,
       };

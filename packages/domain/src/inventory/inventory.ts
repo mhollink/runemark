@@ -1,3 +1,4 @@
+import { INITIAL_BACKPACK_CAPACITY } from "../character/character";
 import type { ItemDefinition, ItemId } from "../items/item-definition";
 import {
   assertNonEmptyString,
@@ -11,9 +12,8 @@ export interface InventorySlot {
   readonly quantity: number;
 }
 
-/** A null capacity represents an unbounded inventory, such as the bank. */
 export interface Inventory {
-  readonly capacity: number | null;
+  readonly capacity: number;
   readonly slots: readonly InventorySlot[];
 }
 
@@ -25,10 +25,10 @@ export class InsufficientItemsError extends Error {
   override name = "InsufficientItemsError";
 }
 
-export function createInventory(capacity: number | null): Inventory {
-  if (capacity !== null) {
-    assertNonNegativeSafeInteger(capacity, "Inventory capacity");
-  }
+export function createInventory(
+  capacity: number = INITIAL_BACKPACK_CAPACITY,
+): Inventory {
+  assertNonNegativeSafeInteger(capacity, "Inventory capacity");
   return { capacity, slots: [] };
 }
 
@@ -36,10 +36,8 @@ export function usedInventorySlots(inventory: Inventory): number {
   return inventory.slots.length;
 }
 
-export function availableInventorySlots(inventory: Inventory): number | null {
-  return inventory.capacity === null
-    ? null
-    : inventory.capacity - inventory.slots.length;
+export function availableInventorySlots(inventory: Inventory): number {
+  return inventory.capacity - inventory.slots.length;
 }
 
 export function countInventoryItem(

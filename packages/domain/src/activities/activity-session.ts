@@ -1,3 +1,4 @@
+import type { CombatProgress } from "../combat/combat-progress";
 import type { TravelLeg } from "../world/travel-route";
 
 export type ActivityPhase =
@@ -13,8 +14,10 @@ export interface TravelProgress {
 
 export interface ActivitySession {
   readonly siteId: string;
+  readonly activityId: string;
   readonly status: "running" | "blocked";
   readonly phase: ActivityPhase;
   readonly elapsedMs: number;
   readonly travel: TravelProgress | null;
+  readonly combat?: CombatProgress | undefined;
 }

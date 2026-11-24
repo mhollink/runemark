@@ -6,7 +6,7 @@ import {
   createInventory,
   depositInventory,
   type GameSave,
-  type ItemDrop,
+  type ItemQuantity,
   type ProductionActivityDefinition,
   type TravelLeg,
   type TravelProgress,
@@ -124,7 +124,7 @@ export function simulateProduction(
 
   function recordItems(
     ledger: Record<string, number>,
-    items: readonly ItemDrop[],
+    items: readonly ItemQuantity[],
   ): void {
     for (const { itemId, quantity } of items) {
       const total = (ledger[itemId] ?? 0) + quantity;

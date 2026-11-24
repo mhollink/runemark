@@ -1,5 +1,6 @@
 import type { GameContent } from "@runemark/content";
 import type { GameSave } from "@runemark/domain";
+import { simulateCombat } from "./activities/combat";
 import { simulateGathering } from "./activities/gathering";
 import { simulateProduction } from "./activities/production";
 import type { SimulationResult, SimulationSummary } from "./simulation-types";
@@ -41,15 +42,12 @@ export function simulateGame(
   }
 
   const site = content.sites[session.siteId];
+  const activity = content.activities[session.activityId];
 
-  if (!site) {
-    throw new Error(`Unknown activity site: ${session.siteId}`);
-  }
-
-  const activity = content.activities[site.activityId];
-
-  if (!activity) {
-    throw new Error(`Unknown activity: ${site.activityId}`);
+  if (!site || !activity) {
+    throw new Error(
+      `Unknown site or activity: ${session.siteId}/${session.activityId}`,
+    );
   }
 
   switch (activity.kind) {
@@ -57,5 +55,7 @@ export function simulateGame(
       return simulateGathering(state, content, site, activity, until);
     case "production":
       return simulateProduction(state, content, site, activity, until);
+    case "combat":
+      return simulateCombat(state, content, site, activity, until);
   }
 }

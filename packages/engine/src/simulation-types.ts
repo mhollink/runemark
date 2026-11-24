@@ -17,7 +17,8 @@ export type GameEvent = {
   readonly reason:
     | "INVENTORY_FULL"
     | "BANK_UNAVAILABLE"
-    | "INSUFFICIENT_MATERIALS";
+    | "INSUFFICIENT_MATERIALS"
+    | "PLAYER_DEFEATED";
 };
 
 export interface SimulationResult {
@@ -27,5 +28,9 @@ export interface SimulationResult {
 }
 
 export type GameCommand =
-  | { readonly type: "START_ACTIVITY"; readonly siteId: string }
+  | {
+      readonly type: "START_ACTIVITY";
+      readonly siteId: string;
+      readonly activityId: string;
+    }
   | { readonly type: "STOP_ACTIVITY" };

@@ -52,10 +52,12 @@ function App() {
 
   const availableSites = Object.values(gameContent.sites)
     .filter((site) => site.locationId === game.character.locationId)
-    .flatMap((site) => {
-      const activity = gameContent.activities[site.activityId];
-      return activity ? [{ site, activity }] : [];
-    });
+    .flatMap((site) =>
+      site.activityIds.flatMap((activityId) => {
+        const activity = gameContent.activities[activityId];
+        return activity ? [{ site, activity }] : [];
+      }),
+    );
 
   const session = game.activeActivity;
   const banking = session?.phase === "banking";
@@ -63,11 +65,10 @@ function App() {
     session?.phase === "travel-to-bank" || session?.phase === "travel-to-site";
   const currentLeg = session?.travel?.legs[session.travel.index];
 
-  const selectedSite = session ? gameContent.sites[session.siteId] : undefined;
-
-  const selectedActivity = selectedSite
-    ? gameContent.activities[selectedSite.activityId]
+  const selectedActivity = session
+    ? gameContent.activities[session.activityId]
     : undefined;
+
   const phaseDuration = banking
     ? BANKING_DURATION_MS
     : traveling
@@ -100,7 +101,11 @@ function App() {
 
   const skills = [
     ...new Set(
-      Object.values(gameContent.activities).map((activity) => activity.skillId),
+      Object.values(gameContent.activities).flatMap((activity) =>
+        activity.kind === "combat"
+          ? ["attack", "constitution"]
+          : [activity.skillId],
+      ),
     ),
   ].sort();
 
@@ -140,24 +145,30 @@ function App() {
 
           <div className="site-list">
             {availableSites.map(({ site, activity }) => {
-              const selected = session?.siteId === site.id;
+              const selected =
+                session?.siteId === site.id &&
+                session.activityId === activity.id;
               const active = selected && session?.status === "running";
 
               return (
                 <button
-                  key={site.id}
+                  key={`${site.id}:${activity.id}`}
                   type="button"
                   className={`site-button ${selected ? "selected" : ""}`}
-                  onClick={() => startActivity(site.id)}
+                  onClick={() => startActivity(site.id, activity.id)}
                   disabled={active}
                   aria-pressed={selected}
                 >
                   <span className="site-skill">
-                    {displayName(activity.skillId)}
+                    {activity.kind === "combat"
+                      ? "Combat"
+                      : displayName(activity.skillId)}{" "}
                   </span>
                   <strong>{activity.name}</strong>
                   <span className="site-details">
-                    {formatDuration(activity.durationMs)} per action
+                    {activity.kind === "combat"
+                      ? "Continuous combat"
+                      : `${formatDuration(activity.durationMs)} per action`}
                   </span>
                   {selected && (
                     <span className="site-state">
@@ -176,7 +187,11 @@ function App() {
           {session && selectedActivity ? (
             <>
               <div className="activity-symbol">
-                {banking ? "B" : displayName(selectedActivity.skillId)[0]}
+                {banking
+                  ? "B"
+                  : selectedActivity.kind === "combat"
+                    ? "C"
+                    : displayName(selectedActivity.skillId)[0]}
               </div>
 
               <p className="activity-status">{phaseLabel}</p>

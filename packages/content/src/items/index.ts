@@ -1,5 +1,7 @@
+import type { ItemDefinition } from "@runemark/domain";
 import { birchLog } from "./birch-log";
 import { bones } from "./bones";
+import { cookedChicken } from "./cooked-chicken";
 import { cookedHerring } from "./cooked-herring";
 import { copperOre } from "./copper-ore";
 import { feather } from "./feather";
@@ -18,4 +20,5 @@ export const items = [
   bones,
   rawHerring,
   cookedHerring,
-];
+  cookedChicken,
+] satisfies ItemDefinition[];

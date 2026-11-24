@@ -10,7 +10,7 @@ import {
   type GatheringActivityDefinition,
   type Inventory,
   InventoryCapacityError,
-  type ItemDrop,
+  type ItemQuantity,
   type TravelLeg,
   type TravelProgress,
 } from "@runemark/domain";
@@ -35,7 +35,7 @@ function getItem(content: GameContent, itemId: string) {
  */
 function canGather(
   inventory: Inventory,
-  drops: readonly ItemDrop[],
+  drops: readonly ItemQuantity[],
   content: GameContent,
 ): boolean {
   if (drops.length === 0) {
@@ -61,14 +61,14 @@ function canGather(
  */
 function storeDrops(
   inventory: Inventory,
-  drops: readonly ItemDrop[],
+  drops: readonly ItemQuantity[],
   content: GameContent,
 ): {
   inventory: Inventory;
-  accepted: readonly ItemDrop[];
+  accepted: readonly ItemQuantity[];
 } {
   let current = inventory;
-  const accepted: ItemDrop[] = [];
+  const accepted: ItemQuantity[] = [];
 
   for (const drop of drops) {
     try {
