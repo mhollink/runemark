@@ -3,53 +3,28 @@ import type { GameSave } from "@runemark/domain";
 import { simulateCombat } from "./activities/combat";
 import { simulateGathering } from "./activities/gathering";
 import { simulateProduction } from "./activities/production";
-import type { SimulationResult, SimulationSummary } from "./simulation-types";
-
-const EMPTY_SUMMARY: SimulationSummary = {
-  completedActions: 0,
-  itemsGained: {},
-  itemsConsumed: {},
-  experienceGained: {},
-  bankTrips: 0,
-  itemsBanked: {},
-};
+import { createActivitySummary } from "./activities/shared/activity-summary";
+import { resolveActivity } from "./activities/shared/resolve-activity";
+import type { SimulationResult } from "./simulation-types";
 
 export function simulateGame(
   state: GameSave,
   content: GameContent,
   until: number,
 ): SimulationResult {
-  if (!Number.isSafeInteger(until) || until < state.lastSimulatedAt) {
-    throw new RangeError("Invalid simulation timestamp");
-  }
-
-  if (state.contentVersion !== content.version) {
-    throw new Error("Content version mismatch");
-  }
-
-  if (until === state.lastSimulatedAt) {
-    return { state, events: [], summary: EMPTY_SUMMARY };
-  }
-
+  assertSimulationRequest(state, content, until);
   const session = state.activeActivity;
-
-  if (!session || session.status === "blocked") {
-    return {
-      state: { ...state, lastSimulatedAt: until },
-      events: [],
-      summary: EMPTY_SUMMARY,
-    };
-  }
-
-  const site = content.sites[session.siteId];
-  const activity = content.activities[session.activityId];
-
-  if (!site || !activity) {
-    throw new Error(
-      `Unknown site or activity: ${session.siteId}/${session.activityId}`,
-    );
-  }
-
+  if (
+    until === state.lastSimulatedAt ||
+    !session ||
+    session.status === "blocked"
+  )
+    return createIdleResult(state, until);
+  const { site, activity } = resolveActivity(
+    content,
+    session.siteId,
+    session.activityId,
+  );
   switch (activity.kind) {
     case "gathering":
       return simulateGathering(state, content, site, activity, until);
@@ -58,4 +33,26 @@ export function simulateGame(
     case "combat":
       return simulateCombat(state, content, site, activity, until);
   }
+}
+
+function assertSimulationRequest(
+  state: GameSave,
+  content: GameContent,
+  until: number,
+): void {
+  if (!Number.isSafeInteger(until) || until < state.lastSimulatedAt)
+    throw new RangeError("Invalid simulation timestamp");
+  if (state.contentVersion !== content.version)
+    throw new Error("Content version mismatch");
+}
+
+function createIdleResult(state: GameSave, until: number): SimulationResult {
+  return {
+    state:
+      until === state.lastSimulatedAt
+        ? state
+        : { ...state, lastSimulatedAt: until },
+    events: [],
+    summary: createActivitySummary(),
+  };
 }

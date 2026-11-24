@@ -1,9 +1,7 @@
 import type { GameContent } from "@runemark/content";
 import {
-  addInventoryItem,
   type BankStorage,
   countBankItem,
-  countInventoryItem,
   createInventory,
   InsufficientItemsError,
   type Inventory,
@@ -12,15 +10,7 @@ import {
   removeInventoryItem,
   withdrawBankItem,
 } from "@runemark/domain";
-
-export function hasIngredients(
-  inventory: Inventory,
-  activity: ProductionActivityDefinition,
-): boolean {
-  return activity.inputs.every(
-    ({ itemId, quantity }) => countInventoryItem(inventory, itemId) >= quantity,
-  );
-}
+import { addItemQuantity } from "../loot/store-loot";
 
 export function hasBankIngredients(
   bank: BankStorage,
@@ -31,47 +21,38 @@ export function hasBankIngredients(
   );
 }
 
-function getItem(content: GameContent, itemId: string) {
-  const item = content.items[itemId];
-
-  if (!item) {
-    throw new Error(`Unknown production item: ${itemId}`);
-  }
-
-  return item;
-}
-
 export function tryProduce(
   inventory: Inventory,
   activity: ProductionActivityDefinition,
   content: GameContent,
 ): Inventory | null {
   try {
-    let backpack = inventory;
-
-    for (const input of activity.inputs) {
-      backpack = removeInventoryItem(backpack, input.itemId, input.quantity);
-    }
-
-    for (const output of activity.outputs) {
-      backpack = addInventoryItem(
-        backpack,
-        getItem(content, output.itemId),
-        output.quantity,
-      );
-    }
-
-    return backpack;
+    const consumed = activity.inputs.reduce(
+      (current, input) =>
+        removeInventoryItem(current, input.itemId, input.quantity),
+      inventory,
+    );
+    return activity.outputs.reduce(
+      (current, output) => addItemQuantity(current, content, output),
+      consumed,
+    );
   } catch (error) {
-    if (
-      error instanceof InsufficientItemsError ||
-      error instanceof InventoryCapacityError
-    ) {
-      return null;
-    }
-
+    if (isExpectedProductionFailure(error)) return null;
     throw error;
   }
+}
+
+function isExpectedProductionFailure(error: unknown): boolean {
+  return (
+    error instanceof InsufficientItemsError ||
+    error instanceof InventoryCapacityError
+  );
+}
+
+export interface ProductionBatch {
+  readonly bank: BankStorage;
+  readonly backpack: Inventory;
+  readonly actions: number;
 }
 
 export function withdrawProductionBatch(
@@ -79,70 +60,51 @@ export function withdrawProductionBatch(
   capacity: number,
   activity: ProductionActivityDefinition,
   content: GameContent,
-): {
-  bank: BankStorage;
-  backpack: Inventory;
-  actions: number;
-} {
-  let result = {
+): ProductionBatch {
+  let batch: ProductionBatch = {
     bank,
     backpack: createInventory(capacity),
     actions: 0,
   };
-
-  // Limit each batch to at most one action per backpack slot.
-  // This also keeps batches finite for stackable ingredients.
-  for (let actions = 1; actions <= capacity; actions++) {
-    if (!hasBankIngredients(result.bank, activity)) {
+  // Keep batches finite even for fully stackable recipes.
+  while (batch.actions < capacity) {
+    const candidate = withdrawNextAction(batch, activity, content);
+    if (candidate === null || !canProcessBatch(candidate, activity, content))
       break;
-    }
-
-    let nextBank = result.bank;
-    let nextBackpack = result.backpack;
-
-    try {
-      for (const input of activity.inputs) {
-        nextBackpack = addInventoryItem(
-          nextBackpack,
-          getItem(content, input.itemId),
-          input.quantity,
-        );
-
-        nextBank = withdrawBankItem(nextBank, input.itemId, input.quantity);
-      }
-    } catch (error) {
-      if (
-        error instanceof InventoryCapacityError ||
-        error instanceof InsufficientItemsError
-      ) {
-        break;
-      }
-
-      throw error;
-    }
-
-    // Verify that the entire batch can be processed,
-    // including recipes that produce multiple outputs.
-    let simulated: Inventory | null = nextBackpack;
-
-    for (let index = 0; index < actions; index++) {
-      simulated = tryProduce(simulated, activity, content);
-
-      if (simulated === null) {
-        break;
-      }
-    }
-
-    if (simulated === null) {
-      break;
-    }
-
-    result = {
-      bank: nextBank,
-      backpack: nextBackpack,
-      actions,
-    };
+    batch = candidate;
   }
+  return batch;
+}
 
-  return result;
+function withdrawNextAction(
+  batch: ProductionBatch,
+  activity: ProductionActivityDefinition,
+  content: GameContent,
+): ProductionBatch | null {
+  if (!hasBankIngredients(batch.bank, activity)) return null;
+  try {
+    let { bank, backpack } = batch;
+    for (const input of activity.inputs) {
+      backpack = addItemQuantity(backpack, content, input);
+      bank = withdrawBankItem(bank, input.itemId, input.quantity);
+    }
+    return { bank, backpack, actions: batch.actions + 1 };
+  } catch (error) {
+    if (isExpectedProductionFailure(error)) return null;
+    throw error;
+  }
+}
+
+function canProcessBatch(
+  batch: ProductionBatch,
+  activity: ProductionActivityDefinition,
+  content: GameContent,
+): boolean {
+  let inventory = batch.backpack;
+  for (let action = 0; action < batch.actions; action++) {
+    const produced = tryProduce(inventory, activity, content);
+    if (produced === null) return false;
+    inventory = produced;
+  }
+  return true;
 }

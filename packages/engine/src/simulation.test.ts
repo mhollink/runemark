@@ -2,8 +2,6 @@ import { type GameContent, gameContent } from "@runemark/content";
 import {
   countBankItem,
   countInventoryItem,
-  createCharacter,
-  createGameSave,
   createInventory,
   experienceForSkill,
   type GameSave,
@@ -12,23 +10,7 @@ import {
 import { describe, expect, it } from "vitest";
 import { advanceGame, executeCommand } from "./index";
 import { simulateGame } from "./simulation";
-
-const START = 1_790_000_000_000;
-
-function newGame(): GameSave {
-  return createGameSave({
-    id: "test-save",
-    contentVersion: gameContent.version,
-    lastSimulatedAt: START,
-    randomState: 42,
-    character: createCharacter({
-      id: "test-character",
-      name: "Eira",
-      locationId: "eldvik",
-      skills: [],
-    }),
-  });
-}
+import { createTestGame as newGame, START } from "./testing/game-fixtures";
 
 function startGathering(
   siteId = "eldvik-birch-grove",
@@ -219,7 +201,7 @@ describe("automated banking", () => {
     expect(second.summary.bankTrips).toBe(0);
   });
 
-  it("deposits resources after 60 seconds and resumes gathering", () => {
+  it("deposits resources after banking completes and resumes gathering", () => {
     const started = startGathering();
 
     const result = advanceGame(started, START + 180_000);
@@ -382,3 +364,49 @@ describe("fishing", () => {
     expect(result.state.activeActivity?.status).toBe("running");
   });
 });
+
+describe("simulation invariants", () => {
+  it("rejects a valid activity at the wrong site", () => {
+    const initial = startGathering();
+    const session = initial.activeActivity;
+    if (!session) throw new Error("Missing activity session");
+    expect(() =>
+      simulateGame(
+        {
+          ...initial,
+          activeActivity: { ...session, activityId: "mine-copper" },
+        },
+        gameContent,
+        START + 1,
+      ),
+    ).toThrow(/not available/);
+  });
+
+  it("restores health on a gathering bank visit", () => {
+    const initial = startGathering();
+    const result = advanceGame(
+      {
+        ...initial,
+        character: { ...initial.character, currentHitpoints: 2 },
+      },
+      START + 140_000,
+    );
+    expect(result.summary.bankTrips).toBe(1);
+    expect(result.state.character.currentHitpoints).toBe(10);
+  });
+
+  it("does not mutate the input game save", () => {
+    const initial = startGathering();
+    const snapshot = JSON.stringify(initial);
+    freezeRecursively(initial);
+    advanceGame(initial, START + 180_000);
+    expect(JSON.stringify(initial)).toBe(snapshot);
+  });
+});
+
+function freezeRecursively(value: unknown): void {
+  if (typeof value !== "object" || value === null || Object.isFrozen(value))
+    return;
+  for (const child of Object.values(value)) freezeRecursively(child);
+  Object.freeze(value);
+}

@@ -1,8 +1,12 @@
-import type { Character, CombatStats } from "@runemark/domain";
+import {
+  type Character,
+  type CombatStats,
+  maxHitpointsForCharacter,
+} from "@runemark/domain";
 
-export function getPlayerCombatStats(_character: Character): CombatStats {
+export function getPlayerCombatStats(character: Character): CombatStats {
   return {
-    maxHitpoints: 10,
+    maxHitpoints: maxHitpointsForCharacter(character),
     attackType: "melee",
     attackIntervalMs: 2_500,
     maxHit: 2,

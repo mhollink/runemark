@@ -6,31 +6,10 @@ export function findShortestRoute(
   fromId: string,
   toId: string,
 ): readonly TravelLeg[] | null {
-  const exists = (id: string) =>
-    content.locations[id] !== undefined || content.sites[id] !== undefined;
-
-  if (!exists(fromId) || !exists(toId)) return null;
+  if (!isKnownNode(content, fromId) || !isKnownNode(content, toId)) return null;
   if (fromId === toId) return [];
 
-  // Expand every bidirectional connection into two directed legs.
-  const legs: TravelLeg[] = Object.values(content.routes)
-    .flatMap((route) => [
-      {
-        routeId: route.id,
-        fromId: route.fromId,
-        toId: route.toId,
-        durationMs: route.durationMs,
-      },
-      {
-        routeId: route.id,
-        fromId: route.toId,
-        toId: route.fromId,
-        durationMs: route.durationMs,
-      },
-    ])
-    .sort((a, b) =>
-      `${a.routeId}:${a.toId}`.localeCompare(`${b.routeId}:${b.toId}`),
-    );
+  const legs = createTravelLegs(content);
 
   const distances = new Map<string, number>([[fromId, 0]]);
   const previous = new Map<string, TravelLeg>();
@@ -65,8 +44,43 @@ export function findShortestRoute(
     }
   }
 
-  if (!distances.has(toId)) return null;
+  return distances.has(toId) ? reconstructPath(previous, fromId, toId) : null;
+}
 
+function isKnownNode(content: GameContent, nodeId: string): boolean {
+  return (
+    content.locations[nodeId] !== undefined ||
+    content.sites[nodeId] !== undefined
+  );
+}
+
+function createTravelLegs(content: GameContent): readonly TravelLeg[] {
+  // Expand every bidirectional connection into two directed legs.
+  return Object.values(content.routes)
+    .flatMap((route) => [
+      {
+        routeId: route.id,
+        fromId: route.fromId,
+        toId: route.toId,
+        durationMs: route.durationMs,
+      },
+      {
+        routeId: route.id,
+        fromId: route.toId,
+        toId: route.fromId,
+        durationMs: route.durationMs,
+      },
+    ])
+    .sort((a, b) =>
+      `${a.routeId}:${a.toId}`.localeCompare(`${b.routeId}:${b.toId}`),
+    );
+}
+
+function reconstructPath(
+  previous: ReadonlyMap<string, TravelLeg>,
+  fromId: string,
+  toId: string,
+): readonly TravelLeg[] | null {
   const path: TravelLeg[] = [];
   let nodeId = toId;
 
@@ -74,11 +88,11 @@ export function findShortestRoute(
     const leg = previous.get(nodeId);
     if (!leg) return null;
 
-    path.unshift(leg);
+    path.push(leg);
     nodeId = leg.fromId;
   }
 
-  return path;
+  return path.reverse();
 }
 
 export function findNearestBank(
@@ -96,7 +110,7 @@ export function findNearestBank(
     const path = findShortestRoute(content, fromId, bank.id);
     if (path === null) continue;
 
-    const duration = path.reduce((sum, leg) => sum + leg.durationMs, 0);
+    const duration = routeDuration(path);
 
     if (duration < bestDuration) {
       best = path;
@@ -105,4 +119,8 @@ export function findNearestBank(
   }
 
   return best;
+}
+
+export function routeDuration(route: readonly TravelLeg[]): number {
+  return route.reduce((sum, leg) => sum + leg.durationMs, 0);
 }

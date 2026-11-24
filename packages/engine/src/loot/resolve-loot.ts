@@ -46,70 +46,85 @@ export function resolveLoot(
       return resolveLoot(table.node, content, randomState, table.visited);
     }
 
-    case "conditional": {
-      if (!Number.isSafeInteger(node.oneIn) || node.oneIn <= 0) {
-        throw new RangeError("Invalid conditional probability");
-      }
-
-      const roll = nextRandom(randomState);
-      const selected =
-        roll.value < 1 / node.oneIn ? node.success : node.failure;
-
-      return resolveLoot(selected, content, roll.randomState, visited);
-    }
-
-    case "weighted": {
-      const total = node.entries.reduce((sum, entry) => {
-        if (!Number.isSafeInteger(entry.weight) || entry.weight <= 0) {
-          throw new RangeError("Invalid loot weight");
-        }
-        return sum + entry.weight;
-      }, 0);
-
-      if (!Number.isSafeInteger(total) || total <= 0) {
-        throw new RangeError("Invalid total loot weight");
-      }
-
-      const roll = nextRandom(randomState);
-      const selection = roll.value * total;
-
-      let threshold = 0;
-
-      for (const entry of node.entries) {
-        threshold += entry.weight;
-
-        if (selection < threshold) {
-          return resolveLoot(entry.reward, content, roll.randomState, visited);
-        }
-      }
-
-      throw new Error("Failed to select weighted loot");
-    }
-
-    case "all": {
-      const drops: ItemQuantity[] = [];
-      let currentRandomState = randomState;
-
-      for (const reward of node.rewards) {
-        const result = resolveLoot(
-          reward,
-          content,
-          currentRandomState,
-          visited,
-        );
-
-        drops.push(...result.drops);
-        currentRandomState = result.randomState;
-      }
-
-      return { drops, randomState: currentRandomState };
-    }
+    case "conditional":
+      return resolveConditionalLoot(node, content, randomState, visited);
+    case "weighted":
+      return resolveWeightedLoot(node, content, randomState, visited);
+    case "all":
+      return resolveGroupedLoot(node, content, randomState, visited);
   }
 }
 
+function resolveConditionalLoot(
+  node: Extract<LootNode, { kind: "conditional" }>,
+  content: GameContent,
+  randomState: number,
+  visited: ReadonlySet<string>,
+): LootResolution {
+  if (!Number.isSafeInteger(node.oneIn) || node.oneIn <= 0)
+    throw new RangeError("Invalid conditional probability");
+  const roll = nextRandom(randomState);
+  const selected = roll.value < 1 / node.oneIn ? node.success : node.failure;
+  return resolveLoot(selected, content, roll.randomState, visited);
+}
+
+type WeightedLoot = Extract<LootNode, { kind: "weighted" }>;
+
+function totalLootWeight(node: WeightedLoot): number {
+  const total = node.entries.reduce((sum, entry) => {
+    if (!Number.isSafeInteger(entry.weight) || entry.weight <= 0)
+      throw new RangeError("Invalid loot weight");
+    return sum + entry.weight;
+  }, 0);
+  if (!Number.isSafeInteger(total) || total <= 0)
+    throw new RangeError("Invalid total loot weight");
+  return total;
+}
+
+function selectWeightedReward(node: WeightedLoot, selection: number): LootNode {
+  let threshold = 0;
+  for (const entry of node.entries) {
+    threshold += entry.weight;
+    if (selection < threshold) return entry.reward;
+  }
+  throw new Error("Failed to select weighted loot");
+}
+
+function resolveWeightedLoot(
+  node: WeightedLoot,
+  content: GameContent,
+  randomState: number,
+  visited: ReadonlySet<string>,
+): LootResolution {
+  const total = totalLootWeight(node);
+  const roll = nextRandom(randomState);
+  return resolveLoot(
+    selectWeightedReward(node, roll.value * total),
+    content,
+    roll.randomState,
+    visited,
+  );
+}
+
+function resolveGroupedLoot(
+  node: Extract<LootNode, { kind: "all" }>,
+  content: GameContent,
+  randomState: number,
+  visited: ReadonlySet<string>,
+): LootResolution {
+  const drops: ItemQuantity[] = [];
+  let currentRandomState = randomState;
+  for (const reward of node.rewards) {
+    const result = resolveLoot(reward, content, currentRandomState, visited);
+    drops.push(...result.drops);
+    currentRandomState = result.randomState;
+  }
+  return { drops, randomState: currentRandomState };
+}
+
 /**
- * Returns only unconditional rewards.
- * Used to determine whether gathering can continue.
+ * Returns unconditional fixed rewards for capacity checks.
+ * Does not infer guarantees across conditional or weighted alternatives.
  */
 export function guaranteedDrops(
   node: LootNode,
