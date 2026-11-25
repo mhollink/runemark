@@ -18,13 +18,13 @@ export const oakridgeRoutes = [
     id: "oakridge-to-oakridge-woods",
     fromId: "oakridge",
     toId: "oakridge-woods",
-    durationMs: 4000,
+    durationMs: 4500,
   },
   {
     id: "oakridge-to-old-barrow",
     fromId: "oakridge",
     toId: "old-barrow",
-    durationMs: 12_000,
+    durationMs: 14_500,
   },
   {
     id: "oakridge-to-sunfield-farm",

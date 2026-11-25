@@ -5,5 +5,5 @@ export const wolfClearing = {
   id: "goldvale-wolf-clearing",
   name: "Wolf Clearing",
   regionId: goldvale.id,
-  activityIds: ["fight-wild-boar", "fight-grey-wolf", "fight-black-bear"],
+  activityIds: ["fight-grey-wolf"],
 } satisfies ActivitySiteDefinition;
