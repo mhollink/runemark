@@ -4,5 +4,5 @@ export const fightCow = {
   id: "fight-cow",
   kind: "combat",
   name: "Fight Cows",
-  monsterId: "grey-wolf",
+  monsterId: "cow",
 } satisfies CombatActivityDefinition;
