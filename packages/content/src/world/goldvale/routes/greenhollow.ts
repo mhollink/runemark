@@ -5,7 +5,7 @@ export const greenhollowRoutes = [
     id: "greenhollow-to-greenwood",
     fromId: "greenhollow",
     toId: "greenwood",
-    durationMs: 5000,
+    durationMs: 4000,
   },
   {
     id: "greenhollow-to-elden-river",
@@ -13,16 +13,12 @@ export const greenhollowRoutes = [
     toId: "elden-river",
     durationMs: 6000,
   },
-  {
-    id: "greenhollow-to-wolf-clearing",
-    fromId: "greenhollow",
-    toId: "goldvale-wolf-clearing",
-    durationMs: 7000,
-  },
+
+  // Movement to outlaw camp goes via the greenwood
   {
     id: "greenhollow-to-outlaw-camp",
-    fromId: "greenhollow",
+    fromId: "greenwood",
     toId: "goldvale-outlaw-camp",
-    durationMs: 8000,
+    durationMs: 4000,
   },
 ] satisfies TravelRouteDefinition[];

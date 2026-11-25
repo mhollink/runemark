@@ -8,12 +8,6 @@ export const eldenvikRoutes = [
     durationMs: 10_000,
   },
   {
-    id: "eldenvik-to-riverbend",
-    fromId: "eldenvik",
-    toId: "riverbend",
-    durationMs: 13_000,
-  },
-  {
     id: "eldenvik-to-sunmead",
     fromId: "eldenvik",
     toId: "sunmead",
@@ -42,7 +36,7 @@ export const eldenvikRoutes = [
     id: "eldenvik-to-elden-river",
     fromId: "eldenvik",
     toId: "elden-river",
-    durationMs: 7500,
+    durationMs: 10_000,
   },
   {
     id: "eldenvik-to-wolf-clearing",

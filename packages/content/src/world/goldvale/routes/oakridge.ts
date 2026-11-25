@@ -5,7 +5,7 @@ export const oakridgeRoutes = [
     id: "oakridge-to-sunmead",
     fromId: "oakridge",
     toId: "sunmead",
-    durationMs: 10000,
+    durationMs: 10_000,
   },
 
   {
@@ -24,7 +24,7 @@ export const oakridgeRoutes = [
     id: "oakridge-to-old-barrow",
     fromId: "oakridge",
     toId: "old-barrow",
-    durationMs: 12000,
+    durationMs: 12_000,
   },
   {
     id: "oakridge-to-sunfield-farm",
