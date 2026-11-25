@@ -13,4 +13,16 @@ export const greenhollowRoutes = [
     toId: "elden-river",
     durationMs: 6000,
   },
+  {
+    id: "greenhollow-to-wolf-clearing",
+    fromId: "greenhollow",
+    toId: "goldvale-wolf-clearing",
+    durationMs: 7000,
+  },
+  {
+    id: "greenhollow-to-outlaw-camp",
+    fromId: "greenhollow",
+    toId: "goldvale-outlaw-camp",
+    durationMs: 8000,
+  },
 ] satisfies TravelRouteDefinition[];

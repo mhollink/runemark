@@ -23,7 +23,7 @@ export const eldenvikRoutes = [
     id: "eldenvik-to-oakridge",
     fromId: "eldenvik",
     toId: "oakridge",
-    durationMs: 15_000,
+    durationMs: 12_000,
   },
 
   {
@@ -43,5 +43,11 @@ export const eldenvikRoutes = [
     fromId: "eldenvik",
     toId: "elden-river",
     durationMs: 7500,
+  },
+  {
+    id: "eldenvik-to-wolf-clearing",
+    fromId: "eldenvik",
+    toId: "goldvale-wolf-clearing",
+    durationMs: 7000,
   },
 ] satisfies TravelRouteDefinition[];
