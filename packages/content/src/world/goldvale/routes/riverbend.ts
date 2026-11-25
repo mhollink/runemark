@@ -32,4 +32,10 @@ export const riverbendRoutes = [
     toId: "goldvale-copper-mine",
     durationMs: 9000,
   },
+  {
+    id: "riverbend-to-wolf-clearing",
+    fromId: "riverbend",
+    toId: "goldvale-wolf-clearing",
+    durationMs: 5000,
+  },
 ] satisfies TravelRouteDefinition[];
