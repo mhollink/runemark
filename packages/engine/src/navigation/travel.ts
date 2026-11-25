@@ -4,8 +4,7 @@ import { phaseAfterTravel } from "../activities/shared/activity-session";
 import { advancePhaseTime } from "../activities/shared/activity-time";
 
 export function locationForNode(content: GameContent, nodeId: string): string {
-  const locationId =
-    content.sites[nodeId]?.locationId ?? content.locations[nodeId]?.id;
+  const locationId = content.locations[nodeId]?.id;
   if (locationId === undefined) {
     throw new Error(`Unknown travel node: ${nodeId}`);
   }

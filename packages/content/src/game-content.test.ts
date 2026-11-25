@@ -170,8 +170,8 @@ describe("game content", () => {
     it("all sites have defined activities and locations", () => {
       for (const site of Object.values(gameContent.sites)) {
         expect(
-          gameContent.locations[site.locationId],
-          `${site.id}: unknown location ${site.locationId}`,
+          gameContent.regions[site.regionId],
+          `${site.id}: unknown location ${site.regionId}`,
         ).toBeDefined();
         expect(site.activityIds.length, site.id).toBeGreaterThan(0);
         expect(new Set(site.activityIds).size, site.id).toBe(

@@ -13,7 +13,7 @@ import { simulateGame } from "./simulation";
 import { createTestGame as newGame, START } from "./testing/game-fixtures";
 
 function startGathering(
-  siteId = "eldvik-birch-grove",
+  siteId = "greenwood",
   activityId = "chop-birch",
 ): GameSave {
   return executeCommand(
