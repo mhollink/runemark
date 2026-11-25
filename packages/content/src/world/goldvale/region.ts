@@ -1,6 +1,6 @@
 import type { RegionDefinition } from "@runemark/domain";
 
-export const eldmark = {
-  id: "eldmark",
-  name: "Eldmark",
+export const goldvale = {
+  id: "goldvale",
+  name: "Goldvale",
 } satisfies RegionDefinition;
