@@ -5,5 +5,5 @@ export const oakridgeWoods = {
   id: "oakridge-woods",
   name: "Oakridge Woods",
   regionId: goldvale.id,
-  activityIds: ["cut-oak"],
+  activityIds: ["cut-oak", "cut-birch", "fight-wild-boar"],
 } satisfies ActivitySiteDefinition;

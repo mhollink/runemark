@@ -8,12 +8,6 @@ export const eldenvikRoutes = [
     durationMs: 10_000,
   },
   {
-    id: "eldenvik-to-sunmead",
-    fromId: "eldenvik",
-    toId: "sunmead",
-    durationMs: 13_000,
-  },
-  {
     id: "eldenvik-to-oakridge",
     fromId: "eldenvik",
     toId: "oakridge",

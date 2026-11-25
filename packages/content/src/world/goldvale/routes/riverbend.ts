@@ -2,13 +2,6 @@ import type { TravelRouteDefinition } from "@runemark/domain";
 
 export const riverbendRoutes = [
   {
-    id: "riverbend-to-oakridge",
-    fromId: "riverbend",
-    toId: "oakridge",
-    durationMs: 9000,
-  },
-
-  {
     id: "riverbend-to-elden-river",
     fromId: "riverbend",
     toId: "elden-river",
@@ -24,13 +17,7 @@ export const riverbendRoutes = [
     id: "riverbend-to-oakridge-woods",
     fromId: "riverbend",
     toId: "oakridge-woods",
-    durationMs: 6000,
-  },
-  {
-    id: "riverbend-to-copper-mine",
-    fromId: "riverbend",
-    toId: "goldvale-copper-mine",
-    durationMs: 9000,
+    durationMs: 6500,
   },
   {
     id: "riverbend-to-wolf-clearing",
