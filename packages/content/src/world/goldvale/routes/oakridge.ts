@@ -5,31 +5,31 @@ export const oakridgeRoutes = [
     id: "oakridge-to-sunmead",
     fromId: "oakridge",
     toId: "sunmead",
-    durationMs: 6000,
+    durationMs: 10000,
   },
 
   {
     id: "oakridge-to-coppermine",
     fromId: "oakridge",
     toId: "goldvale-copper-mine",
-    durationMs: 2000,
+    durationMs: 6500,
   },
   {
     id: "oakridge-to-oakridge-woods",
     fromId: "oakridge",
     toId: "oakridge-woods",
-    durationMs: 2000,
+    durationMs: 4000,
   },
   {
     id: "oakridge-to-old-barrow",
     fromId: "oakridge",
     toId: "old-barrow",
-    durationMs: 4000,
+    durationMs: 12000,
   },
   {
     id: "oakridge-to-sunfield-farm",
     fromId: "oakridge",
     toId: "sunfield-farm",
-    durationMs: 4000,
+    durationMs: 9000,
   },
 ] satisfies TravelRouteDefinition[];

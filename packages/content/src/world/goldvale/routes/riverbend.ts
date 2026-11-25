@@ -5,31 +5,31 @@ export const riverbendRoutes = [
     id: "riverbend-to-oakridge",
     fromId: "riverbend",
     toId: "oakridge",
-    durationMs: 4500,
+    durationMs: 9000,
   },
 
   {
     id: "riverbend-to-elden-river",
     fromId: "riverbend",
     toId: "elden-river",
-    durationMs: 4000,
+    durationMs: 5000,
   },
   {
     id: "riverbend-to-riverbend-quarry",
     fromId: "riverbend",
     toId: "riverbend-quarry",
-    durationMs: 2000,
+    durationMs: 3500,
   },
   {
     id: "riverbend-to-oakridge-woods",
     fromId: "riverbend",
     toId: "oakridge-woods",
-    durationMs: 3000,
+    durationMs: 6000,
   },
   {
     id: "riverbend-to-copper-mine",
     fromId: "riverbend",
     toId: "goldvale-copper-mine",
-    durationMs: 3000,
+    durationMs: 9000,
   },
 ] satisfies TravelRouteDefinition[];
