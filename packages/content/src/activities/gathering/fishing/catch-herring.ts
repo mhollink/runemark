@@ -5,8 +5,9 @@ export const catchHerring = {
   kind: "gathering",
   name: "Catch Herring",
   skillId: "fishing",
-  durationMs: 8_000,
-  experiencePerAction: 8,
+  durationMs: 7_000,
+  experiencePerAction: 5,
+  requirements: [{ skillId: "fishing", level: 1 }],
   rewards: {
     kind: "fixed",
     drops: [{ itemId: "raw-herring", quantity: 1 }],

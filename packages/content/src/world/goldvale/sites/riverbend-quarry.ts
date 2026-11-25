@@ -5,5 +5,5 @@ export const riverbendQuarry = {
   id: "riverbend-quarry",
   name: "Riverbend Quarry",
   regionId: goldvale.id,
-  activityIds: ["mine-iron", "mine-coal"],
+  activityIds: ["mine-zinc", "mine-iron"],
 } satisfies ActivitySiteDefinition;

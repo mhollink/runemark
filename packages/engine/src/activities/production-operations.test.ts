@@ -13,6 +13,7 @@ const recipe: ProductionActivityDefinition = {
   skillId: "cooking",
   durationMs: 1_000,
   experiencePerAction: 1,
+  requiredFacility: ["hearth"],
   inputs: [{ itemId: "raw-herring", quantity: 1 }],
   outputs: [{ itemId: "cooked-herring", quantity: 2 }],
 };

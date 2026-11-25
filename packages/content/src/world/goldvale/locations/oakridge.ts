@@ -5,5 +5,5 @@ export const oakridge = {
   id: "oakridge",
   name: "Oakridge",
   regionId: goldvale.id,
-  facilities: ["bank"],
+  facilities: ["bank", "sawmill", "workshop"],
 } satisfies LocationDefinition;

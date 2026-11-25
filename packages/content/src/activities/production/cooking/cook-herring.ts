@@ -5,8 +5,10 @@ export const cookHerring = {
   kind: "production",
   name: "Cook Herring",
   skillId: "cooking",
-  durationMs: 6_000,
-  experiencePerAction: 8,
+  durationMs: 8_000,
+  experiencePerAction: 7,
+  requiredFacility: ["hearth"],
+  requirements: [{ skillId: "cooking", level: 1 }],
   inputs: [{ itemId: "raw-herring", quantity: 1 }],
   outputs: [{ itemId: "cooked-herring", quantity: 1 }],
 } satisfies ProductionActivityDefinition;
