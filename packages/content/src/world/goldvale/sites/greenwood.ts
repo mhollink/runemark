@@ -5,5 +5,5 @@ export const greenwood = {
   id: "greenwood",
   name: "The Greenwoods",
   regionId: goldvale.id,
-  activityIds: ["cut-oak", "fight-black-bear"],
+  activityIds: ["chop-oak", "fight-black-bear"],
 } satisfies ActivitySiteDefinition;

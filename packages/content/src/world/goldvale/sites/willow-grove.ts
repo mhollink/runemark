@@ -5,5 +5,5 @@ export const willowGrove = {
   id: "goldvale-willow-grove",
   name: "Willow Grove",
   regionId: goldvale.id,
-  activityIds: ["cut-willow"],
+  activityIds: ["chop-willow"],
 } satisfies ActivitySiteDefinition;

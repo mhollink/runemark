@@ -1,32 +1,38 @@
 import type { ItemQuantity } from "../items/item-quantity";
 import type { LootNode } from "../loot/loot-node";
 import type { SkillId } from "../skills/skill";
+import type { SkillRequirement } from "../skills/skill-requirement";
+import type { LocationFacility } from "../world/location";
 
-export interface GatheringActivityDefinition {
+interface BaseActivityDefinition {
   readonly id: string;
-  readonly kind: "gathering";
   readonly name: string;
+  readonly requirements?: readonly SkillRequirement[];
+}
+
+interface SkillingActivityDefinition extends BaseActivityDefinition {
   readonly skillId: SkillId;
   readonly durationMs: number;
   readonly experiencePerAction: number;
+}
+
+export interface GatheringActivityDefinition
+  extends SkillingActivityDefinition {
+  readonly kind: "gathering";
   readonly rewards: LootNode;
 }
 
-export interface ProductionActivityDefinition {
-  readonly id: string;
+type ProductionFacility = Exclude<LocationFacility, "bank">;
+export interface ProductionActivityDefinition
+  extends SkillingActivityDefinition {
   readonly kind: "production";
-  readonly name: string;
-  readonly skillId: SkillId;
-  readonly durationMs: number;
-  readonly experiencePerAction: number;
   readonly inputs: readonly ItemQuantity[];
   readonly outputs: readonly ItemQuantity[];
+  readonly requiredFacility: readonly ProductionFacility[];
 }
 
-export interface CombatActivityDefinition {
-  readonly id: string;
+export interface CombatActivityDefinition extends BaseActivityDefinition {
   readonly kind: "combat";
-  readonly name: string;
   readonly monsterId: string;
 }
 

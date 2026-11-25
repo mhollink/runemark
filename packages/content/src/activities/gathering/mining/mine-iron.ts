@@ -1,13 +1,13 @@
 import type { GatheringActivityDefinition } from "@runemark/domain";
 
-export const mineCopper = {
-  id: "mine-copper",
+export const mineIron = {
+  id: "mine-iron",
   kind: "gathering",
-  name: "Mine Copper Ore",
+  name: "Mine Iron Ore",
   skillId: "mining",
-  durationMs: 7500,
-  experiencePerAction: 6,
-
+  durationMs: 10_000,
+  experiencePerAction: 10,
+  requirements: [{ skillId: "mining", level: 15 }],
   rewards: {
     kind: "all",
     rewards: [
@@ -17,7 +17,7 @@ export const mineCopper = {
       },
       {
         kind: "fixed",
-        drops: [{ itemId: "copper-ore", quantity: 1 }],
+        drops: [{ itemId: "iron-ore", quantity: 1 }],
       },
     ],
   },

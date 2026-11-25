@@ -5,5 +5,5 @@ export const oldBarrow = {
   id: "old-barrow",
   name: "The Old Barrow",
   regionId: goldvale.id,
-  activityIds: ["fight-skeleton", "fight-zombie", "fight-drauger"],
+  activityIds: ["fight-skeleton", "fight-zombie", "fight-draugar"],
 } satisfies ActivitySiteDefinition;

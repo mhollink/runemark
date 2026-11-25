@@ -5,5 +5,5 @@ export const greenhollow = {
   id: "greenhollow",
   name: "Greenhollow",
   regionId: goldvale.id,
-  facilities: ["bank"],
+  facilities: ["bank", "sawmill", "hearth"],
 } satisfies LocationDefinition;

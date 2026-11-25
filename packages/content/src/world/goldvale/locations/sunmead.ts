@@ -5,5 +5,5 @@ export const sunmead = {
   id: "sunmead",
   name: "Sunmead",
   regionId: goldvale.id,
-  facilities: ["bank"],
+  facilities: ["bank", "mill", "loom", "tannery"],
 } satisfies LocationDefinition;
