@@ -10,7 +10,7 @@ import {
 import type { GameEvent } from "../../simulation-types";
 import type { ActivityRuntime } from "./activity-runtime";
 
-export type TravelPhase = "travel-to-bank" | "travel-to-site";
+export type TravelPhase = "travel-to-bank" | "travel-to-activity";
 
 export function phaseAfterTravel(phase: TravelPhase): ActivityPhase {
   return phase === "travel-to-bank" ? "banking" : "working";
@@ -47,7 +47,7 @@ export function blockActivity(
   };
   runtime.events.push({
     type: "ACTIVITY_BLOCKED",
-    siteId: runtime.site.id,
+    nodeId: runtime.node.id,
     activityId: runtime.activity.id,
     timestamp: runtime.cursor,
     reason,
@@ -74,11 +74,11 @@ export function travelToBank(
   );
 }
 
-export function travelToActivitySite(runtime: ActivityRuntime): void {
+export function travelToActivityNode(runtime: ActivityRuntime): void {
   const route = findShortestRoute(
     runtime.content,
     runtime.character.nodeId,
-    runtime.site.id,
+    runtime.node.id,
   );
   if (route === null) {
     blockActivity(runtime, "BANK_UNAVAILABLE");
@@ -86,7 +86,7 @@ export function travelToActivitySite(runtime: ActivityRuntime): void {
   }
   runtime.session = transitionToTravel(
     runtime.session,
-    "travel-to-site",
+    "travel-to-activity",
     route,
   );
 }

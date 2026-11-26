@@ -1,5 +1,6 @@
 import { gameContent } from "@runemark/content";
 import { type GameSave, SAVE_SCHEMA_VERSION } from "@runemark/domain";
+import { isActivityAvailableAtNode } from "@runemark/engine";
 
 export const SAVE_KEY = "runemark.save";
 
@@ -41,22 +42,26 @@ function isActivitySession(value: unknown): boolean {
   if (value === null) return true;
   if (
     !isRecord(value) ||
-    typeof value.siteId !== "string" ||
+    typeof value.nodeId !== "string" ||
     typeof value.activityId !== "string"
   ) {
     return false;
   }
 
-  const site = gameContent.sites[value.siteId];
   const activity = gameContent.activities[value.activityId];
 
-  if (!site || !activity) return false;
+  if (
+    !activity ||
+    !isActivityAvailableAtNode(gameContent, value.nodeId, activity)
+  ) {
+    return false;
+  }
 
   if (value.status !== "running" && value.status !== "blocked") {
     return false;
   }
 
-  const phases = ["working", "banking", "travel-to-bank", "travel-to-site"];
+  const phases = ["working", "banking", "travel-to-bank", "travel-to-activity"];
 
   if (
     !phases.includes(String(value.phase)) ||
@@ -74,7 +79,8 @@ function isActivitySession(value: unknown): boolean {
   }
 
   return (
-    (value.phase === "travel-to-bank" || value.phase === "travel-to-site") &&
+    (value.phase === "travel-to-bank" ||
+      value.phase === "travel-to-activity") &&
     value.travel.legs.length > 0 &&
     isUnsignedInteger(value.travel.index) &&
     value.travel.index < value.travel.legs.length &&

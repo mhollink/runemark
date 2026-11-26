@@ -28,7 +28,7 @@ export function executeGameCommand(
         createActivitySession(
           result.state.character,
           content,
-          command.siteId,
+          command.nodeId,
           command.activityId,
         ),
       );
@@ -45,17 +45,17 @@ function updateActivity(
 function createActivitySession(
   character: Character,
   content: GameContent,
-  siteId: string,
+  nodeId: string,
   activityId: string,
 ): ActivitySession {
-  const { site, activity } = resolveActivity(content, siteId, activityId);
+  const { node, activity } = resolveActivity(content, nodeId, activityId);
   const requiresBank = requiresBankBeforeActivity(character, activity, content);
   const route = requiresBank
     ? findNearestBank(content, character.nodeId)
-    : findShortestRoute(content, character.nodeId, site.id);
-  if (route === null) throw new Error(`No accessible route for ${site.id}`);
+    : findShortestRoute(content, character.nodeId, node.id);
+  if (route === null) throw new Error(`No accessible route for ${node.id}`);
   const session: ActivitySession = {
-    siteId: site.id,
+    nodeId: node.id,
     activityId: activity.id,
     status: "running",
     phase: "working",
@@ -64,7 +64,7 @@ function createActivitySession(
   };
   return transitionToTravel(
     session,
-    requiresBank ? "travel-to-bank" : "travel-to-site",
+    requiresBank ? "travel-to-bank" : "travel-to-activity",
     route,
   );
 }

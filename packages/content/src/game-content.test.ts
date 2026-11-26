@@ -265,6 +265,14 @@ describe("game content", () => {
   });
 
   describe("world", () => {
+    it("all world nodes have globally unique IDs", () => {
+      const nodeIds = [
+        ...Object.keys(gameContent.locations),
+        ...Object.keys(gameContent.sites),
+      ];
+      expect(new Set(nodeIds).size).toBe(nodeIds.length);
+    });
+
     it("all locations are inside a defined region", () => {
       for (const location of Object.values(gameContent.locations)) {
         expect(

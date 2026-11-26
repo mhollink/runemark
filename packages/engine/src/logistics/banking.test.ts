@@ -24,7 +24,7 @@ describe("automated banking", () => {
     expect(result.summary.completedActions).toBe(10);
     expect(result.summary.bankTrips).toBe(0);
     expect(result.state.activeActivity).toMatchObject({
-      siteId: "test-forest",
+      nodeId: "test-forest",
       phase: "travel-to-bank",
       elapsedMs: 0,
       status: "running",
@@ -89,7 +89,7 @@ describe("automated banking", () => {
     expect(
       countInventoryItem(result.state.character.backpack, "birch-log"),
     ).toBe(0);
-    expect(result.state.activeActivity?.phase).toBe("travel-to-site");
+    expect(result.state.activeActivity?.phase).toBe("travel-to-activity");
     expect(result.events).toEqual([]);
   });
 
@@ -126,7 +126,7 @@ describe("automated banking", () => {
     expect(result.events).toEqual([
       {
         type: "ACTIVITY_BLOCKED",
-        siteId: "test-forest",
+        nodeId: "test-forest",
         activityId: "chop-birch",
         timestamp: START + FULL_AT,
         reason: "BANK_UNAVAILABLE",

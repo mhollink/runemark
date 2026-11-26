@@ -1,11 +1,11 @@
 import type { GameContent } from "@runemark/content";
 import {
-  type ActivitySiteDefinition,
   availableInventorySlots,
   type CombatActivityDefinition,
   type GameSave,
   type ItemQuantity,
   type MonsterDefinition,
+  type WorldNodeDefinition,
 } from "@runemark/domain";
 import { advanceEncounter, createEncounter } from "../combat/encounter";
 import { getPlayerCombatStats } from "../combat/player-stats";
@@ -32,11 +32,11 @@ type CombatRuntime = ActivityRuntime<CombatActivityDefinition>;
 export function simulateCombat(
   state: GameSave,
   content: GameContent,
-  site: ActivitySiteDefinition,
+  node: WorldNodeDefinition,
   activity: CombatActivityDefinition,
   until: number,
 ): SimulationResult {
-  const runtime = createActivityRuntime(state, content, site, activity, until);
+  const runtime = createActivityRuntime(state, content, node, activity, until);
   const monster = content.monsters[activity.monsterId];
   if (!monster) throw new Error(`Unknown monster: ${activity.monsterId}`);
   const guaranteed = guaranteedDrops(monster.loot, content);

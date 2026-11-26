@@ -21,12 +21,12 @@ describe("game commands", () => {
       initial,
       {
         type: "START_ACTIVITY",
-        siteId: "test-forest",
+        nodeId: "test-forest",
         activityId: "chop-birch",
       },
       START,
     );
-    expect(result.state.activeActivity?.phase).toBe("travel-to-site");
+    expect(result.state.activeActivity?.phase).toBe("travel-to-activity");
     expect(result.state.character.nodeId).toBe("test-town");
     expect(result.summary.completedActions).toBe(0);
   });

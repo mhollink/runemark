@@ -2,10 +2,10 @@ import type { GameContent } from "@runemark/content";
 import type {
   ActivityDefinition,
   ActivitySession,
-  ActivitySiteDefinition,
   BankStorage,
   Character,
   GameSave,
+  WorldNodeDefinition,
 } from "@runemark/domain";
 import type { GameEvent, SimulationResult } from "../../simulation-types";
 import {
@@ -18,7 +18,7 @@ export interface ActivityRuntime<
   T extends ActivityDefinition = ActivityDefinition,
 > {
   readonly content: GameContent;
-  readonly site: ActivitySiteDefinition;
+  readonly node: WorldNodeDefinition;
   readonly activity: T;
   readonly until: number;
   cursor: number;
@@ -33,14 +33,14 @@ export interface ActivityRuntime<
 export function createActivityRuntime<T extends ActivityDefinition>(
   state: GameSave,
   content: GameContent,
-  site: ActivitySiteDefinition,
+  node: WorldNodeDefinition,
   activity: T,
   until: number,
 ): ActivityRuntime<T> {
   const session = state.activeActivity;
   if (
     session?.status !== "running" ||
-    session.siteId !== site.id ||
+    session.nodeId !== node.id ||
     session.activityId !== activity.id
   ) {
     throw new Error("No matching active activity session");
@@ -48,7 +48,7 @@ export function createActivityRuntime<T extends ActivityDefinition>(
 
   return {
     content,
-    site,
+    node,
     activity,
     until,
     cursor: state.lastSimulatedAt,
