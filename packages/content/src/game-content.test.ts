@@ -1,4 +1,8 @@
-import type { LootNode } from "@runemark/domain";
+import {
+  type LootNode,
+  MAX_SKILL_LEVEL,
+  MIN_SKILL_LEVEL,
+} from "@runemark/domain";
 import { describe, expect, it } from "vitest";
 import { gameContent } from "./index";
 
@@ -130,6 +134,105 @@ function validateLoot(
   }
 }
 
+/** Find all nodes reachable from any bank using bidirectional routes. */
+function findBankReachableNodes(): ReadonlySet<string> {
+  const reachable = new Set(
+    Object.values(gameContent.locations)
+      .filter((location) => location.facilities?.includes("bank"))
+      .map((location) => location.id),
+  );
+  const routes = Object.values(gameContent.routes);
+
+  let previousSize: number;
+  do {
+    previousSize = reachable.size;
+    for (const { fromId, toId } of routes) {
+      if (reachable.has(fromId)) reachable.add(toId);
+      if (reachable.has(toId)) reachable.add(fromId);
+    }
+  } while (reachable.size !== previousSize);
+
+  return reachable;
+}
+
+/** Collect items from all possible loot outcomes, not just fixed drops. */
+function collectLootItemIds(
+  node: LootNode,
+  itemIds: Set<string>,
+  activeTables: ReadonlySet<string> = new Set(),
+): void {
+  switch (node.kind) {
+    case "nothing":
+      return;
+    case "fixed":
+      for (const { itemId } of node.drops) itemIds.add(itemId);
+      return;
+    case "table": {
+      const table = gameContent.lootTables[node.tableId];
+      if (!table || activeTables.has(node.tableId)) {
+        throw new Error(`Invalid loot table reference: ${node.tableId}`);
+      }
+      collectLootItemIds(
+        table,
+        itemIds,
+        new Set([...activeTables, node.tableId]),
+      );
+      return;
+    }
+    case "conditional":
+      collectLootItemIds(node.success, itemIds, activeTables);
+      if (node.oneIn > 1) {
+        collectLootItemIds(node.failure, itemIds, activeTables);
+      }
+      return;
+    case "weighted":
+      for (const { reward } of node.entries) {
+        collectLootItemIds(reward, itemIds, activeTables);
+      }
+      return;
+    case "all":
+      for (const reward of node.rewards) {
+        collectLootItemIds(reward, itemIds, activeTables);
+      }
+      return;
+  }
+}
+
+/**
+ * Start with gathering and combat rewards, then unlock recipes whose inputs
+ * can already be obtained. Unreferenced loot tables and circular recipes
+ * cannot act as independent acquisition sources.
+ */
+function findObtainableItems(): ReadonlySet<string> {
+  const obtainable = new Set<string>();
+  const activities = Object.values(gameContent.activities);
+
+  for (const activity of activities) {
+    if (activity.kind === "gathering") {
+      collectLootItemIds(activity.rewards, obtainable);
+    } else if (activity.kind === "combat") {
+      const monster = gameContent.monsters[activity.monsterId];
+      if (!monster) throw new Error(`Unknown monster: ${activity.monsterId}`);
+      collectLootItemIds(monster.loot, obtainable);
+    }
+  }
+
+  const recipes = activities.filter(
+    (activity) => activity.kind === "production",
+  );
+  let previousSize: number;
+  do {
+    previousSize = obtainable.size;
+    for (const recipe of recipes) {
+      if (recipe.inputs.every(({ itemId }) => obtainable.has(itemId))) {
+        for (const { itemId } of recipe.outputs) obtainable.add(itemId);
+      }
+    }
+  } while (obtainable.size !== previousSize);
+
+  return obtainable;
+}
+
 describe("game content", () => {
   describe("registries", () => {
     it("all definitions have matching registry keys", () => {
@@ -140,6 +243,8 @@ describe("game content", () => {
       validateRegistryIds("activities", gameContent.activities);
       validateRegistryIds("monsters", gameContent.monsters);
       validateRegistryIds("loot tables", gameContent.lootTables);
+      validateRegistryIds("routes", gameContent.routes);
+      validateRegistryIds("skills", gameContent.skills);
     });
 
     it("all named definitions have non-empty names", () => {
@@ -149,6 +254,8 @@ describe("game content", () => {
         ...Object.values(gameContent.items),
         ...Object.values(gameContent.activities),
         ...Object.values(gameContent.monsters),
+        ...Object.values(gameContent.sites),
+        ...Object.values(gameContent.skills),
       ];
 
       for (const definition of named) {
@@ -167,11 +274,11 @@ describe("game content", () => {
       }
     });
 
-    it("all sites have defined activities and locations", () => {
+    it("all sites have defined activities and regions", () => {
       for (const site of Object.values(gameContent.sites)) {
         expect(
           gameContent.regions[site.regionId],
-          `${site.id}: unknown location ${site.regionId}`,
+          `${site.id}: unknown region ${site.regionId}`,
         ).toBeDefined();
         expect(site.activityIds.length, site.id).toBeGreaterThan(0);
         expect(new Set(site.activityIds).size, site.id).toBe(
@@ -193,8 +300,14 @@ describe("game content", () => {
       ]);
 
       for (const route of Object.values(gameContent.routes)) {
-        expect(nodes.has(route.fromId), route.id).toBe(true);
-        expect(nodes.has(route.toId), route.id).toBe(true);
+        expect(
+            nodes.has(route.fromId),
+            `${route.id}: unknown origin '${route.fromId}'`,
+        ).toBe(true);
+        expect(
+            nodes.has(route.toId),
+            `${route.id}: unknown destination '${route.toId}'`,
+        ).toBe(true);
         expect(route.fromId, route.id).not.toBe(route.toId);
 
         expect(Number.isSafeInteger(route.durationMs), route.id).toBe(true);
@@ -202,9 +315,82 @@ describe("game content", () => {
         expect(route.durationMs, route.id).toBeGreaterThan(0);
       }
     });
+
+    it("travel routes have unique bidirectional connections", () => {
+      const connections = new Set<string>();
+
+      for (const route of Object.values(gameContent.routes)) {
+        const connection = JSON.stringify([route.fromId, route.toId].sort());
+        expect(
+          connections.has(connection),
+          `Duplicate route: ${route.id}`,
+        ).toBe(false);
+        connections.add(connection);
+      }
+    });
+
+    it("all activity sites can reach a bank", () => {
+      const reachable = findBankReachableNodes();
+      const unreachable = Object.keys(gameContent.sites).filter(
+        (siteId) => !reachable.has(siteId),
+      );
+
+      expect(unreachable).toEqual([]);
+    });
   });
 
   describe("activities", () => {
+    it("all gathering and combat activities are available at a site", () => {
+      const siteActivities = new Set(
+        Object.values(gameContent.sites).flatMap((site) => site.activityIds),
+      );
+      const missing = Object.values(gameContent.activities)
+        .filter(
+          (activity) =>
+            activity.kind !== "production" && !siteActivities.has(activity.id),
+        )
+        .map((activity) => activity.id);
+
+      expect(missing).toEqual([]);
+    });
+
+    it("all production activities have a compatible settlement", () => {
+      const locations = Object.values(gameContent.locations);
+
+      for (const activity of Object.values(gameContent.activities)) {
+        if (activity.kind !== "production") continue;
+
+        expect(activity.requiredFacility.length, activity.id).toBeGreaterThan(
+          0,
+        );
+        expect(
+          locations.some((location) =>
+            activity.requiredFacility.every((facility) =>
+              location.facilities?.includes(facility),
+            ),
+          ),
+          `${activity.id}: no location with all required facilities`,
+        ).toBe(true);
+      }
+    });
+
+    it("all activity skill requirements are valid", () => {
+      for (const activity of Object.values(gameContent.activities)) {
+        const seen = new Set<string>();
+        for (const { skillId, level } of activity.requirements ?? []) {
+          const path = `${activity.id}: ${skillId}`;
+          expect(gameContent.skills[skillId], path).toBeDefined();
+          expect(Number.isSafeInteger(level), path).toBe(true);
+          expect(level, path).toBeGreaterThanOrEqual(MIN_SKILL_LEVEL);
+          expect(level, path).toBeLessThanOrEqual(MAX_SKILL_LEVEL);
+          expect(seen.has(skillId), `${path}: duplicate requirement`).toBe(
+            false,
+          );
+          seen.add(skillId);
+        }
+      }
+    });
+
     it("all gathering rewards are valid", () => {
       for (const activity of Object.values(gameContent.activities)) {
         if (activity.kind === "gathering") {
@@ -278,7 +464,56 @@ describe("game content", () => {
     });
   });
 
+  describe("items", () => {
+    it("all registered items have an acquisition source", () => {
+      const obtainable = findObtainableItems();
+      const missing = Object.keys(gameContent.items).filter(
+        (itemId) => !obtainable.has(itemId),
+      );
+
+      expect(missing).toEqual([]);
+    });
+
+    it("all production ingredients can be obtained", () => {
+      const obtainable = findObtainableItems();
+      const missing = Object.values(gameContent.activities).flatMap(
+        (activity) =>
+          activity.kind === "production"
+            ? activity.inputs
+                .filter(({ itemId }) => !obtainable.has(itemId))
+                .map(({ itemId }) => `${activity.id}: ${itemId}`)
+            : [],
+      );
+
+      expect(missing).toEqual([]);
+    });
+  });
+
   describe("monsters", () => {
+    it("all monsters are referenced by a combat activity", () => {
+      const referenced = new Set(
+        Object.values(gameContent.activities).flatMap((activity) =>
+          activity.kind === "combat" ? [activity.monsterId] : [],
+        ),
+      );
+      const missing = Object.keys(gameContent.monsters).filter(
+        (monsterId) => !referenced.has(monsterId),
+      );
+
+      expect(missing).toEqual([]);
+    });
+
+    it("all monsters have finite defense ratings for every attack type", () => {
+      for (const { id, combat } of Object.values(gameContent.monsters)) {
+        for (const attackType of ["melee", "ranged", "magic"] as const) {
+          expect(
+            Number.isFinite(combat.defense?.[attackType]),
+            `${id}: invalid ${attackType} defense rating`,
+          ).toBe(true);
+        }
+      }
+    });
+
     it("all monster loot is valid", () => {
       for (const monster of Object.values(gameContent.monsters)) {
         validateLoot(monster.loot, `monster:${monster.id}`);
