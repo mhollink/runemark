@@ -29,11 +29,14 @@ import { chopOak } from "./gathering/woodcutting/chop-oak";
 import { chopWillow } from "./gathering/woodcutting/chop-willow";
 /// Cooking
 import { bakeBread } from "./production/cooking/bake-bread";
+import { cookBearMeat } from "./production/cooking/cook-bear-meat";
+import { cookBeef } from "./production/cooking/cook-beef";
 import { cookBream } from "./production/cooking/cook-bream";
 import { cookChicken } from "./production/cooking/cook-chicken";
 import { cookElderberries } from "./production/cooking/cook-elderberries";
 import { cookHerring } from "./production/cooking/cook-herring";
 import { cookPike } from "./production/cooking/cook-pike";
+import { cookPork } from "./production/cooking/cook-pork";
 import { millFlour } from "./production/cooking/mill-flour";
 import { makeBrassIngots } from "./production/smithing/make-brass-ingots";
 /// Smithing
@@ -67,11 +70,14 @@ export const activities = [
   chopOak,
   chopWillow,
   bakeBread,
+  cookBearMeat,
+  cookBeef,
   cookBream,
   cookChicken,
   cookElderberries,
   cookHerring,
   cookPike,
+  cookPork,
   millFlour,
   makeBrassIngots,
   smithBrassAxe,

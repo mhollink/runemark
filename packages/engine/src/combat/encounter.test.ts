@@ -8,6 +8,11 @@ const player: CombatStats = {
   attackIntervalMs: 2_000,
   maxHit: 1,
   accuracy: 1,
+  defense: {
+    magic: 0,
+    melee: 0,
+    ranged: 0,
+  },
 };
 const monster: CombatStats = {
   maxHitpoints: 3,
@@ -15,6 +20,11 @@ const monster: CombatStats = {
   attackIntervalMs: 3_000,
   maxHit: 1,
   accuracy: 1,
+  defense: {
+    magic: 0,
+    melee: 0,
+    ranged: 0,
+  },
 };
 
 function createState() {
