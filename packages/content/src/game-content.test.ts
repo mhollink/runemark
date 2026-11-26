@@ -301,12 +301,12 @@ describe("game content", () => {
 
       for (const route of Object.values(gameContent.routes)) {
         expect(
-            nodes.has(route.fromId),
-            `${route.id}: unknown origin '${route.fromId}'`,
+          nodes.has(route.fromId),
+          `${route.id}: unknown origin '${route.fromId}'`,
         ).toBe(true);
         expect(
-            nodes.has(route.toId),
-            `${route.id}: unknown destination '${route.toId}'`,
+          nodes.has(route.toId),
+          `${route.id}: unknown destination '${route.toId}'`,
         ).toBe(true);
         expect(route.fromId, route.id).not.toBe(route.toId);
 

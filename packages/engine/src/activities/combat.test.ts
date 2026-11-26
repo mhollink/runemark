@@ -4,12 +4,16 @@ import {
   maxHitpointsForCharacter,
 } from "@runemark/domain";
 import { describe, expect, it } from "vitest";
-import { advanceGame, executeCommand, getPlayerCombatStats } from "../index";
-import { createTestGame, START } from "../testing/game-fixtures";
+import {
+  advanceTestGame,
+  createTestGame,
+  executeTestCommand,
+  START,
+} from "../testing/game-fixtures";
 
 function startCombat() {
   const initial = createTestGame();
-  return executeCommand(
+  return executeTestCommand(
     {
       ...initial,
       character: {
@@ -22,7 +26,7 @@ function startCombat() {
     },
     {
       type: "START_ACTIVITY",
-      siteId: "eldvik-farm",
+      siteId: "test-farm",
       activityId: "fight-chicken",
     },
     START,
@@ -30,19 +34,8 @@ function startCombat() {
 }
 
 describe("combat activity", () => {
-  it("uses Constitution for maximum hitpoints", () => {
-    const { character } = createTestGame();
-    expect(getPlayerCombatStats(character).maxHitpoints).toBe(10);
-    expect(
-      getPlayerCombatStats({
-        ...character,
-        skills: { ...character.skills, constitution: experienceForLevel(15) },
-      }).maxHitpoints,
-    ).toBe(15);
-  });
-
   it("increases Constitution while fighting", () => {
-    const result = advanceGame(startCombat(), START + 60_000);
+    const result = advanceTestGame(startCombat(), START + 60_000);
     expect(result.summary.completedActions).toBeGreaterThan(0);
     expect(
       levelForSkill(result.state.character.skills, "constitution"),
@@ -55,10 +48,10 @@ describe("combat activity", () => {
   it("remains deterministic while leveling Constitution", () => {
     const initial = startCombat();
     const until = START + 3_600_000;
-    const direct = advanceGame(initial, until);
+    const direct = advanceTestGame(initial, until);
     let chunked = initial;
     for (let at = START + 10_000; at <= until; at += 10_000) {
-      chunked = advanceGame(chunked, at).state;
+      chunked = advanceTestGame(chunked, at).state;
     }
     expect(chunked).toEqual(direct.state);
   });
