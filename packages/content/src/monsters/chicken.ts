@@ -9,6 +9,11 @@ export const chicken = {
     attackIntervalMs: 4_000,
     maxHit: 1,
     accuracy: 0.25,
+    defense: {
+      magic: 0,
+      melee: 0,
+      ranged: 0,
+    },
   },
   loot: {
     kind: "all",
