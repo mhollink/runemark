@@ -6,7 +6,7 @@ export const catchPike = {
   name: "Catch Pike",
   skillId: "fishing",
   durationMs: 15_000,
-  experiencePerAction: 18,
+  experiencePerAction: 23,
   requirements: [{ skillId: "fishing", level: 20 }],
   rewards: {
     kind: "fixed",

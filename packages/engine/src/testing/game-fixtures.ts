@@ -16,7 +16,7 @@ export function createTestGame(): GameSave {
     character: createCharacter({
       id: "test-character",
       name: "Eira",
-      locationId: "eldvik",
+      locationId: "eldenvik",
       skills: Object.values(gameContent.skills),
     }),
   });

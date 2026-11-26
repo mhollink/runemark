@@ -5,8 +5,8 @@ export const chopWillow = {
   kind: "gathering",
   name: "Chop Willow trees",
   skillId: "woodcutting",
-  durationMs: 5000,
-  experiencePerAction: 4,
+  durationMs: 10000,
+  experiencePerAction: 14,
   requirements: [{ skillId: "woodcutting", level: 30 }],
   rewards: {
     kind: "fixed",

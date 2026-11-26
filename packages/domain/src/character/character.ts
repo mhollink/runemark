@@ -4,7 +4,7 @@ import type { SkillDefinition } from "../skills/skill";
 import type { SkillProgress } from "../skills/skill-progress";
 import { createSkillProgress, levelForSkill } from "../skills/skill-progress";
 
-export const INITIAL_BACKPACK_CAPACITY = 10;
+export const INITIAL_BACKPACK_CAPACITY = 16;
 
 export interface Character {
   readonly id: string;
