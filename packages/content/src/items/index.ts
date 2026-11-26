@@ -5,6 +5,8 @@ import { bearClaw } from "./bear-claw";
 import { bearPelt } from "./bear-pelt";
 import { bilberries } from "./bilberries";
 import { birchLog } from "./birch-log";
+import { birchPlank } from "./birch-plank";
+import { birchShield } from "./birch-shield";
 import { boarHide } from "./boar-hide";
 import { boarTusk } from "./boar-tusk";
 import { bones } from "./bones";
@@ -36,6 +38,7 @@ import { ironOre } from "./iron-ore";
 import { ironSword } from "./iron-sword";
 import { leatherBoots } from "./leather-boots";
 import { oakLog } from "./oak-log";
+import { oakPlank } from "./oak-plank";
 import { oakShield } from "./oak-shield";
 import { outlawSignetRing } from "./outlaw-signet-ring";
 import { rawBearMeat } from "./raw-bear-meat";
@@ -62,6 +65,8 @@ export const items = [
   bearPelt,
   bilberries,
   birchLog,
+  birchPlank,
+  birchShield,
   boarHide,
   boarTusk,
   bones,
@@ -93,6 +98,7 @@ export const items = [
   ironSword,
   leatherBoots,
   oakLog,
+  oakPlank,
   oakShield,
   outlawSignetRing,
   rawBearMeat,

@@ -1,4 +1,4 @@
-import {gameContent} from "../packages/content/src";
+import { gameContent } from "../packages/content/src";
 
 const monsters = Object.values(gameContent.monsters)
   .map(({ id, name, combat }) => {
@@ -13,11 +13,11 @@ const monsters = Object.values(gameContent.monsters)
     return {
       id,
       name,
-        combatLevel: Math.max(1, Math.round(difficulty)),
-        hitpoints: maxHitpoints,
+      combatLevel: Math.max(1, Math.round(difficulty)),
+      hitpoints: maxHitpoints,
       maxHit,
-        speed: attackIntervalMs / 1000,
-        dps,
+      speed: attackIntervalMs / 1000,
+      dps,
     };
   })
   .sort((a, b) => a.combatLevel - b.combatLevel);
