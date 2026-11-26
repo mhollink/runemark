@@ -4,19 +4,19 @@ export const riverbendRoutes = [
   {
     id: "riverbend-to-elden-river",
     fromId: "riverbend",
-    toId: "elden-river",
+    toId: "goldvale-elden-river",
     durationMs: 5000,
   },
   {
     id: "riverbend-to-riverbend-quarry",
     fromId: "riverbend",
-    toId: "riverbend-quarry",
+    toId: "goldvale-riverbend-quarry",
     durationMs: 3500,
   },
   {
     id: "riverbend-to-oakridge-woods",
     fromId: "riverbend",
-    toId: "oakridge-woods",
+    toId: "goldvale-oakridge-woods",
     durationMs: 6500,
   },
   {

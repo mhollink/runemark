@@ -10,7 +10,8 @@
     "check": "biome ci .",
     "format": "biome check --write .",
     "verify": "pnpm format && pnpm check && pnpm typecheck && pnpm test && pnpm build",
-    "world:graph": "tsx tooling/generate-world-graph.ts"
+    "world:graph": "tsx tooling/generate-world-graph.ts",
+    "monsters:difficulty": "tsx tooling/monster-difficulty.ts"
   },
   "packageManager": "pnpm@12.16.1",
   "devDependencies": {

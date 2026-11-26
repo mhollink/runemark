@@ -17,19 +17,19 @@ export const oakridgeRoutes = [
   {
     id: "oakridge-to-oakridge-woods",
     fromId: "oakridge",
-    toId: "oakridge-woods",
+    toId: "goldvale-oakridge-woods",
     durationMs: 4500,
   },
   {
     id: "oakridge-to-old-barrow",
     fromId: "oakridge",
-    toId: "old-barrow",
+    toId: "goldvale-old-barrow",
     durationMs: 14_500,
   },
   {
     id: "oakridge-to-sunfield-farm",
     fromId: "oakridge",
-    toId: "sunfield-farm",
+    toId: "goldvale-sunfield-farm",
     durationMs: 9000,
   },
 ] satisfies TravelRouteDefinition[];

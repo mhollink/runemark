@@ -4,7 +4,7 @@ export const sunmeadRoutes = [
   {
     id: "sunmead-to-sunfield-farm",
     fromId: "sunmead",
-    toId: "sunfield-farm",
+    toId: "goldvale-sunfield-farm",
     durationMs: 3000,
   },
   {
@@ -16,13 +16,13 @@ export const sunmeadRoutes = [
   {
     id: "sunmead-to-sunmead-meadows",
     fromId: "sunmead",
-    toId: "sunmead-meadows",
+    toId: "goldvale-sunmead-meadows",
     durationMs: 4500,
   },
   {
     id: "sunmead-to-greenwood",
     fromId: "sunmead",
-    toId: "greenwood",
+    toId: "goldvale-greenwood",
     durationMs: 6000,
   },
 ] satisfies TravelRouteDefinition[];

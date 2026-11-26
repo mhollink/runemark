@@ -30,7 +30,7 @@ function createInitialGame(): GameSave {
     character: createCharacter({
       id: crypto.randomUUID(),
       name: "Adventurer",
-      locationId: "eldvik",
+      locationId: "eldenvik",
       skills: Object.values(gameContent.skills),
     }),
   });

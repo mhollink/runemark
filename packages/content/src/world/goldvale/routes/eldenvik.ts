@@ -29,7 +29,7 @@ export const eldenvikRoutes = [
   {
     id: "eldenvik-to-elden-river",
     fromId: "eldenvik",
-    toId: "elden-river",
+    toId: "goldvale-elden-river",
     durationMs: 10_000,
   },
   {
