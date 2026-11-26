@@ -1,7 +1,7 @@
 import type { ItemDefinition } from "@runemark/domain";
 import { ancientAmulet } from "./ancient-amulet";
 import { arrow } from "./arrow";
-import {arrowShaft} from "./arrow-shaft";
+import { arrowShaft } from "./arrow-shaft";
 import { bearClaw } from "./bear-claw";
 import { bearPelt } from "./bear-pelt";
 import { bilberries } from "./bilberries";
@@ -62,7 +62,7 @@ import { zincOre } from "./zinc-ore";
 export const items = [
   ancientAmulet,
   arrow,
-    arrowShaft,
+  arrowShaft,
   bearClaw,
   bearPelt,
   bilberries,

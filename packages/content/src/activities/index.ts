@@ -46,12 +46,13 @@ import { smithBrassLongSword } from "./production/smithing/smith-brass-long-swor
 import { smithBrassMailShirt } from "./production/smithing/smith-brass-mail-shirt";
 import { smithBrassSword } from "./production/smithing/smith-brass-sword";
 /// Woodworking
-import {craftArrowShafts} from "./production/woodworking/craft-arrow-shafts"
-import {craftBirchShield} from "./production/woodworking/craft-birch-shield"
-import {craftOakShield} from "./production/woodworking/craft-oak-shield"
-import {craftReinforcedOakShield} from "./production/woodworking/craft-reinforced-oak-shield"
-import {craftBirchPlank} from "./production/woodworking/make-birch-plank"
-import {craftOakPlank} from "./production/woodworking/make-oak-plank"
+import { craftArrowShafts } from "./production/woodworking/craft-arrow-shafts";
+import { craftBirchShield } from "./production/woodworking/craft-birch-shield";
+import { craftOakShield } from "./production/woodworking/craft-oak-shield";
+import { craftReinforcedOakShield } from "./production/woodworking/craft-reinforced-oak-shield";
+import { craftBirchPlank } from "./production/woodworking/make-birch-plank";
+import { craftOakPlank } from "./production/woodworking/make-oak-plank";
+
 export const activities = [
   fightBlackBear,
   fightChicken,
@@ -91,10 +92,10 @@ export const activities = [
   smithBrassLongSword,
   smithBrassMailShirt,
   smithBrassSword,
-    craftArrowShafts,
-    craftBirchPlank,
-    craftBirchShield,
-    craftOakPlank,
-    craftOakShield,
-    craftReinforcedOakShield
+  craftArrowShafts,
+  craftBirchPlank,
+  craftBirchShield,
+  craftOakPlank,
+  craftOakShield,
+  craftReinforcedOakShield,
 ] satisfies ActivityDefinition[];

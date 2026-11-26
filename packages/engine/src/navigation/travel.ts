@@ -3,12 +3,14 @@ import type { ActivityRuntime } from "../activities/shared/activity-runtime";
 import { phaseAfterTravel } from "../activities/shared/activity-session";
 import { advancePhaseTime } from "../activities/shared/activity-time";
 
-export function locationForNode(content: GameContent, nodeId: string): string {
-  const locationId = content.locations[nodeId]?.id;
-  if (locationId === undefined) {
-    throw new Error(`Unknown travel node: ${nodeId}`);
-  }
-  return locationId;
+export function locationForNode(
+  content: GameContent,
+  nodeId: string,
+  previousLocationId: string,
+): string {
+  if (content.locations[nodeId]) return nodeId;
+  if (content.sites[nodeId]) return previousLocationId;
+  throw new Error(`Unknown travel node: ${nodeId}`);
 }
 
 export function advanceTravel(runtime: ActivityRuntime): void {
@@ -33,6 +35,10 @@ function arriveAtNode(runtime: ActivityRuntime, nodeId: string): void {
   runtime.character = {
     ...runtime.character,
     nodeId,
-    locationId: locationForNode(runtime.content, nodeId),
+    locationId: locationForNode(
+      runtime.content,
+      nodeId,
+      runtime.character.locationId,
+    ),
   };
 }
