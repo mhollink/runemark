@@ -15,7 +15,7 @@ export function locationForNode(
 
 export function advanceTravel(runtime: ActivityRuntime): void {
   const { phase, travel } = runtime.session;
-  if (phase !== "travel-to-bank" && phase !== "travel-to-site") {
+  if (phase !== "travel-to-bank" && phase !== "travel-to-activity") {
     throw new Error("Activity is not traveling");
   }
   const leg = travel?.legs[travel.index];

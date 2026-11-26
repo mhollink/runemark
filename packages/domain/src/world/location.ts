@@ -1,3 +1,5 @@
+import type { WorldNodeDefinition } from "./node";
+
 export type LocationFacility =
   | "bank"
   | "hearth"
@@ -8,9 +10,6 @@ export type LocationFacility =
   | "tannery"
   | "loom";
 
-export interface LocationDefinition {
-  readonly id: string;
-  readonly name: string;
-  readonly regionId: string;
+export interface LocationDefinition extends WorldNodeDefinition {
   readonly facilities?: readonly LocationFacility[];
 }

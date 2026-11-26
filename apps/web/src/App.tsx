@@ -1,6 +1,9 @@
 import { gameContent } from "@runemark/content";
 import { experienceForSkill } from "@runemark/domain";
-import { BANKING_DURATION_MS } from "@runemark/engine";
+import {
+  BANKING_DURATION_MS,
+  isActivityAvailableAtNode,
+} from "@runemark/engine";
 import { OfflineSummary } from "./game/OfflineSummary";
 import { useGame } from "./game/use-game";
 
@@ -50,19 +53,24 @@ function App() {
   const location = gameContent.locations[game.character.locationId];
   const region = location ? gameContent.regions[location.regionId] : undefined;
 
-  const availableSites = Object.values(gameContent.sites)
-    .filter((site) => site.locationId === game.character.locationId)
-    .flatMap((site) =>
-      site.activityIds.flatMap((activityId) => {
-        const activity = gameContent.activities[activityId];
-        return activity ? [{ site, activity }] : [];
-      }),
+  const availableActivities = [
+    ...Object.values(gameContent.locations),
+    ...Object.values(gameContent.sites),
+  ]
+    .filter((node) => node.regionId === region?.id)
+    .flatMap((node) =>
+      Object.values(gameContent.activities)
+        .filter((activity) =>
+          isActivityAvailableAtNode(gameContent, node.id, activity),
+        )
+        .map((activity) => ({ node, activity })),
     );
 
   const session = game.activeActivity;
   const banking = session?.phase === "banking";
   const traveling =
-    session?.phase === "travel-to-bank" || session?.phase === "travel-to-site";
+    session?.phase === "travel-to-bank" ||
+    session?.phase === "travel-to-activity";
   const currentLeg = session?.travel?.legs[session.travel.index];
 
   const selectedActivity = session
@@ -73,15 +81,21 @@ function App() {
     ? BANKING_DURATION_MS
     : traveling
       ? (currentLeg?.durationMs ?? 0)
-      : (selectedActivity?.durationMs ?? 0);
+      : selectedActivity && selectedActivity.kind !== "combat"
+        ? selectedActivity.durationMs
+        : 0;
 
   const phaseLabel = banking
     ? "Banking resources"
     : traveling
       ? session?.phase === "travel-to-bank"
         ? "Traveling to bank"
-        : "Traveling to activity site"
-      : "Gathering resources";
+        : "Traveling to activity"
+      : selectedActivity?.kind === "production"
+        ? "Producing items"
+        : selectedActivity?.kind === "combat"
+          ? "Fighting"
+          : "Gathering resources";
 
   const progress =
     session && phaseDuration > 0
@@ -144,18 +158,18 @@ function App() {
           </div>
 
           <div className="site-list">
-            {availableSites.map(({ site, activity }) => {
+            {availableActivities.map(({ node, activity }) => {
               const selected =
-                session?.siteId === site.id &&
+                session?.nodeId === node.id &&
                 session.activityId === activity.id;
               const active = selected && session?.status === "running";
 
               return (
                 <button
-                  key={`${site.id}:${activity.id}`}
+                  key={`${node.id}:${activity.id}`}
                   type="button"
                   className={`site-button ${selected ? "selected" : ""}`}
-                  onClick={() => startActivity(site.id, activity.id)}
+                  onClick={() => startActivity(node.id, activity.id)}
                   disabled={active}
                   aria-pressed={selected}
                 >
@@ -165,6 +179,7 @@ function App() {
                       : displayName(activity.skillId)}{" "}
                   </span>
                   <strong>{activity.name}</strong>
+                  <span className="site-details">{node.name}</span>
                   <span className="site-details">
                     {activity.kind === "combat"
                       ? "Continuous combat"
@@ -201,7 +216,9 @@ function App() {
               <p className="activity-subtitle">
                 {banking
                   ? "Depositing gathered resources into the bank."
-                  : `${selectedActivity.experiencePerAction} XP per action`}
+                  : selectedActivity.kind === "combat"
+                    ? "Continuous combat"
+                    : `${selectedActivity.experiencePerAction} XP per action`}
               </p>
 
               <div className="activity-progress">

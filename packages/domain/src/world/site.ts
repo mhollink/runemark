@@ -1,6 +1,5 @@
-export interface ActivitySiteDefinition {
-  readonly id: string;
-  readonly name: string;
-  readonly regionId: string;
+import type { WorldNodeDefinition } from "./node";
+
+export interface ActivitySiteDefinition extends WorldNodeDefinition {
   readonly activityIds: readonly string[];
 }

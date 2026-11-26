@@ -26,7 +26,7 @@ function startCombat() {
     },
     {
       type: "START_ACTIVITY",
-      siteId: "test-farm",
+      nodeId: "test-farm",
       activityId: "fight-chicken",
     },
     START,

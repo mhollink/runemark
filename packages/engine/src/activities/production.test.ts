@@ -7,20 +7,26 @@ import {
   executeTestCommand,
   START,
 } from "../testing/game-fixtures";
+import { testContent } from "../testing/test-content";
 
-function startCooking(quantity: number) {
+function startCooking(
+  quantity: number,
+  nodeId = "test-town",
+  content = testContent,
+) {
   const initial = {
-    ...createTestGame(),
+    ...createTestGame(content),
     bank: { items: { "raw-herring": quantity } },
   };
   return executeTestCommand(
     initial,
     {
       type: "START_ACTIVITY",
-      siteId: "test-hearth",
+      nodeId,
       activityId: "cook-herring",
     },
     START,
+    content,
   ).state;
 }
 
@@ -50,9 +56,54 @@ describe("production", () => {
       START + BANKING_DURATION_MS + 5_000,
     );
     expect(result.summary.completedActions).toBe(0);
+    expect(result.state.activeActivity?.phase).toBe("working");
+    expect(result.state.activeActivity?.elapsedMs).toBe(5_000);
     expect(
       countInventoryItem(result.state.character.backpack, "raw-herring"),
     ).toBe(5);
+  });
+
+  it("travels from the bank to a remote production settlement", () => {
+    const village = testContent.locations["test-village"];
+    if (!village) throw new Error("Missing test village");
+    const content = {
+      ...testContent,
+      locations: {
+        ...testContent.locations,
+        "test-village": { ...village, facilities: ["hearth"] as const },
+      },
+    };
+    const initial = startCooking(1, village.id, content);
+    const afterBanking = advanceTestGame(
+      initial,
+      START + BANKING_DURATION_MS,
+      content,
+    );
+    expect(afterBanking.state.activeActivity?.phase).toBe("travel-to-activity");
+
+    const arrived = advanceTestGame(
+      afterBanking.state,
+      START + BANKING_DURATION_MS + 8_000,
+      content,
+    );
+    expect(arrived.state.character.nodeId).toBe(village.id);
+    expect(arrived.state.activeActivity?.phase).toBe("working");
+
+    const completed = advanceTestGame(
+      arrived.state,
+      START + BANKING_DURATION_MS + 16_000,
+      content,
+    );
+    expect(completed.summary.completedActions).toBe(1);
+    expect(completed.state.activeActivity?.phase).toBe("travel-to-bank");
+
+    const banked = advanceTestGame(
+      completed.state,
+      START + 2 * BANKING_DURATION_MS + 24_000,
+      content,
+    );
+    expect(countBankItem(banked.state.bank, "cooked-herring")).toBe(1);
+    expect(banked.state.activeActivity?.status).toBe("blocked");
   });
 
   it("produces identical state across simulation boundaries", () => {

@@ -46,14 +46,14 @@ export function executeTestCommand(
 }
 
 export function startTestActivity(
-  siteId: string,
+  nodeId: string,
   activityId: string,
   state = createTestGame(),
   content: GameContent = testContent,
 ): GameSave {
   return executeTestCommand(
     state,
-    { type: "START_ACTIVITY", siteId, activityId },
+    { type: "START_ACTIVITY", nodeId, activityId },
     state.lastSimulatedAt,
     content,
   ).state;

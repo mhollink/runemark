@@ -102,8 +102,18 @@ describe("combat encounter", () => {
       ...monster,
       defense: { ...monster.defense, melee: -50 },
     };
-    const direct = advanceEncounter(initial, resistantPlayer, weakMonster, 3_500);
-    const first = advanceEncounter(initial, resistantPlayer, weakMonster, 1_500);
+    const direct = advanceEncounter(
+      initial,
+      resistantPlayer,
+      weakMonster,
+      3_500,
+    );
+    const first = advanceEncounter(
+      initial,
+      resistantPlayer,
+      weakMonster,
+      1_500,
+    );
     const second = advanceEncounter(first, resistantPlayer, weakMonster, 2_000);
     expect(second.progress).toEqual(direct.progress);
     expect(second.randomState).toBe(direct.randomState);

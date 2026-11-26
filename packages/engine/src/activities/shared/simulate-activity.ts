@@ -2,7 +2,7 @@ import type { ActivityDefinition } from "@runemark/domain";
 import { advanceBanking } from "../../logistics/banking";
 import { advanceTravel } from "../../navigation/travel";
 import type { ActivityRuntime } from "./activity-runtime";
-import { travelToActivitySite } from "./activity-session";
+import { travelToActivityNode } from "./activity-session";
 
 export interface ActivityHandler<T extends ActivityDefinition> {
   advanceWork(runtime: ActivityRuntime<T>): void;
@@ -36,14 +36,14 @@ function advanceActivityPhase<T extends ActivityDefinition>(
 ): void {
   switch (runtime.session.phase) {
     case "travel-to-bank":
-    case "travel-to-site":
+    case "travel-to-activity":
       advanceTravel(runtime);
       return;
     case "banking":
       completeBanking(runtime, handler);
       return;
     case "working":
-      assertActivityLocation(runtime);
+      assertActivityNode(runtime);
       handler.advanceWork(runtime);
       return;
   }
@@ -55,11 +55,11 @@ function completeBanking<T extends ActivityDefinition>(
 ): void {
   if (!advanceBanking(runtime)) return;
   handler.prepareAfterBanking?.(runtime);
-  if (runtime.session.status === "running") travelToActivitySite(runtime);
+  if (runtime.session.status === "running") travelToActivityNode(runtime);
 }
 
-function assertActivityLocation(runtime: ActivityRuntime): void {
-  if (runtime.character.nodeId !== runtime.site.id) {
-    throw new Error(`Character is not at site ${runtime.site.id}`);
+function assertActivityNode(runtime: ActivityRuntime): void {
+  if (runtime.character.nodeId !== runtime.node.id) {
+    throw new Error(`Character is not at node ${runtime.node.id}`);
   }
 }

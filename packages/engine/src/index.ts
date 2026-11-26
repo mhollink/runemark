@@ -4,6 +4,7 @@ import { executeGameCommand } from "./commands/execute-command";
 import { simulateGame } from "./simulation";
 import type { GameCommand, SimulationResult } from "./simulation-types";
 
+export { isActivityAvailableAtNode } from "./activities/shared/resolve-activity";
 export { getPlayerCombatStats } from "./combat/player-stats";
 export { BANKING_DURATION_MS } from "./logistics/config";
 export type {

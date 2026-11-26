@@ -20,18 +20,18 @@ export function simulateGame(
     session.status === "blocked"
   )
     return createIdleResult(state, until);
-  const { site, activity } = resolveActivity(
+  const { node, activity } = resolveActivity(
     content,
-    session.siteId,
+    session.nodeId,
     session.activityId,
   );
   switch (activity.kind) {
     case "gathering":
-      return simulateGathering(state, content, site, activity, until);
+      return simulateGathering(state, content, node, activity, until);
     case "production":
-      return simulateProduction(state, content, site, activity, until);
+      return simulateProduction(state, content, node, activity, until);
     case "combat":
-      return simulateCombat(state, content, site, activity, until);
+      return simulateCombat(state, content, node, activity, until);
   }
 }
 

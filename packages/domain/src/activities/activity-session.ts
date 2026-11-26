@@ -5,7 +5,7 @@ export type ActivityPhase =
   | "working"
   | "travel-to-bank"
   | "banking"
-  | "travel-to-site";
+  | "travel-to-activity";
 
 export interface TravelProgress {
   readonly legs: readonly TravelLeg[];
@@ -13,7 +13,7 @@ export interface TravelProgress {
 }
 
 export interface ActivitySession {
-  readonly siteId: string;
+  readonly nodeId: string;
   readonly activityId: string;
   readonly status: "running" | "blocked";
   readonly phase: ActivityPhase;

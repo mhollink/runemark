@@ -3,7 +3,7 @@ import type { ProductionActivityDefinition } from "@runemark/domain";
 export const cookElderberries = {
   id: "cook-elderberries",
   kind: "production",
-  name: "Bake Bread",
+  name: "Cook Elderberries",
   skillId: "cooking",
   durationMs: 20_000,
   experiencePerAction: 25,

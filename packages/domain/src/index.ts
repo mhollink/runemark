@@ -15,6 +15,7 @@ export * from "./save/game-save";
 export * from "./skills/skill";
 export * from "./skills/skill-progress";
 export * from "./world/location";
+export * from "./world/node";
 export * from "./world/region";
 export * from "./world/site";
 export * from "./world/travel-route";

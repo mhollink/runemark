@@ -11,7 +11,7 @@ export interface SimulationSummary {
 
 export type GameEvent = {
   readonly type: "ACTIVITY_BLOCKED";
-  readonly siteId: string;
+  readonly nodeId: string;
   readonly activityId: string;
   readonly timestamp: number;
   readonly reason:
@@ -30,7 +30,7 @@ export interface SimulationResult {
 export type GameCommand =
   | {
       readonly type: "START_ACTIVITY";
-      readonly siteId: string;
+      readonly nodeId: string;
       readonly activityId: string;
     }
   | { readonly type: "STOP_ACTIVITY" };

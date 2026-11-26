@@ -1,10 +1,10 @@
 import type { GameContent } from "@runemark/content";
 import {
-  type ActivitySiteDefinition,
   availableInventorySlots,
   type GameSave,
   type GatheringActivityDefinition,
   type ItemQuantity,
+  type WorldNodeDefinition,
 } from "@runemark/domain";
 import { guaranteedDrops } from "../loot/resolve-loot";
 import { tryAddItems } from "../loot/store-loot";
@@ -25,11 +25,11 @@ type GatheringRuntime = ActivityRuntime<GatheringActivityDefinition>;
 export function simulateGathering(
   state: GameSave,
   content: GameContent,
-  site: ActivitySiteDefinition,
+  node: WorldNodeDefinition,
   activity: GatheringActivityDefinition,
   until: number,
 ): SimulationResult {
-  const runtime = createActivityRuntime(state, content, site, activity, until);
+  const runtime = createActivityRuntime(state, content, node, activity, until);
   const guaranteed = guaranteedDrops(activity.rewards, content);
   simulateActivity(runtime, {
     advanceWork: (current) => advanceGathering(current, guaranteed),

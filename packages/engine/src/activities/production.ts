@@ -1,8 +1,8 @@
 import type { GameContent } from "@runemark/content";
 import type {
-  ActivitySiteDefinition,
   GameSave,
   ProductionActivityDefinition,
+  WorldNodeDefinition,
 } from "@runemark/domain";
 import type { SimulationResult } from "../simulation-types";
 import {
@@ -25,11 +25,11 @@ type ProductionRuntime = ActivityRuntime<ProductionActivityDefinition>;
 export function simulateProduction(
   state: GameSave,
   content: GameContent,
-  site: ActivitySiteDefinition,
+  node: WorldNodeDefinition,
   activity: ProductionActivityDefinition,
   until: number,
 ): SimulationResult {
-  const runtime = createActivityRuntime(state, content, site, activity, until);
+  const runtime = createActivityRuntime(state, content, node, activity, until);
   simulateActivity(runtime, {
     advanceWork: advanceProduction,
     prepareAfterBanking: restockIngredients,

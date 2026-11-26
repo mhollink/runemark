@@ -61,7 +61,12 @@ export function advanceEncounter(
     // Player has priority when both attacks occur
     // at exactly the same timestamp.
     if (playerAttackElapsedMs >= player.attackIntervalMs) {
-      const attack = applyAttack(player, monster, monsterHitpoints, randomState);
+      const attack = applyAttack(
+        player,
+        monster,
+        monsterHitpoints,
+        randomState,
+      );
 
       randomState = attack.randomState;
       playerAttackElapsedMs = 0;

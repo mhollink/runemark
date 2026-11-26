@@ -58,7 +58,6 @@ const cookHerring = {
 } satisfies ProductionActivityDefinition;
 
 // Synthetic world for engine tests, independent of production content.
-// A production site models the current engine contract until facilities replace it.
 export const testContent: GameContent = {
   version: "test-content-v1",
   items: {
@@ -131,12 +130,6 @@ export const testContent: GameContent = {
       regionId: "test-region",
       activityIds: ["catch-herring"],
     },
-    "test-hearth": {
-      id: "test-hearth",
-      name: "Test Hearth",
-      regionId: "test-region",
-      activityIds: ["cook-herring"],
-    },
     "test-farm": {
       id: "test-farm",
       name: "Test Farm",
@@ -162,12 +155,6 @@ export const testContent: GameContent = {
       fromId: "test-town",
       toId: "test-shore",
       durationMs: 8_000,
-    },
-    "hearth-route": {
-      id: "hearth-route",
-      fromId: "test-town",
-      toId: "test-hearth",
-      durationMs: 2_000,
     },
     "farm-route": {
       id: "farm-route",
