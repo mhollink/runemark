@@ -8,11 +8,14 @@ export interface AttackResult {
 
 export function resolveAttack(
   attacker: CombatStats,
+  defender: CombatStats,
   randomState: number,
 ): AttackResult {
+  const defense = defender.defense[attacker.attackType];
+  const accuracy = effectiveAccuracy(attacker.accuracy, defense);
   const accuracyRoll = nextRandom(randomState);
 
-  if (accuracyRoll.value >= attacker.accuracy) {
+  if (accuracyRoll.value >= accuracy) {
     return {
       damage: 0,
       randomState: accuracyRoll.randomState,
@@ -21,8 +24,19 @@ export function resolveAttack(
 
   const damageRoll = nextRandom(accuracyRoll.randomState);
 
+  const baseDamage = Math.floor(damageRoll.value * attacker.maxHit) + 1;
+
   return {
-    damage: Math.floor(damageRoll.value * attacker.maxHit) + 1,
+    damage: applyWeakness(baseDamage, defense),
     randomState: damageRoll.randomState,
   };
+}
+
+/** Positive defense reduces hit chance; weaknesses affect damage instead. */
+function effectiveAccuracy(accuracy: number, defense: number): number {
+  return accuracy * (100 / (100 + Math.max(0, defense)));
+}
+
+function applyWeakness(damage: number, defense: number): number {
+  return Math.round(damage * (1 + Math.max(0, -defense) / 100));
 }

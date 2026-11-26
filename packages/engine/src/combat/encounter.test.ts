@@ -71,6 +71,47 @@ describe("combat encounter", () => {
     expect(result.playerHitpoints).toBe(0);
   });
 
+  it("applies the defender's rating to attacks in both directions", () => {
+    const result = advanceEncounter(
+      createState(),
+      { ...player, defense: { ...player.defense, melee: -100 } },
+      { ...monster, defense: { ...monster.defense, melee: 300 } },
+      3_000,
+    );
+    expect(result.progress.monsterHitpoints).toBe(3);
+    expect(result.playerHitpoints).toBe(8);
+  });
+
+  it("uses the attack type when a player exploits a weakness", () => {
+    const result = advanceEncounter(
+      createState(),
+      { ...player, attackType: "ranged" },
+      { ...monster, defense: { ...monster.defense, ranged: -100 } },
+      2_000,
+    );
+    expect(result.progress.monsterHitpoints).toBe(1);
+  });
+
+  it("is deterministic with resistances and weaknesses", () => {
+    const initial = createState();
+    const resistantPlayer = {
+      ...player,
+      defense: { ...player.defense, melee: 50 },
+    };
+    const weakMonster = {
+      ...monster,
+      defense: { ...monster.defense, melee: -50 },
+    };
+    const direct = advanceEncounter(initial, resistantPlayer, weakMonster, 3_500);
+    const first = advanceEncounter(initial, resistantPlayer, weakMonster, 1_500);
+    const second = advanceEncounter(first, resistantPlayer, weakMonster, 2_000);
+    expect(second.progress).toEqual(direct.progress);
+    expect(second.randomState).toBe(direct.randomState);
+    expect(second.playerHitpoints).toBe(direct.playerHitpoints);
+    expect(second.outcome).toBe(direct.outcome);
+    expect(first.consumedMs + second.consumedMs).toBe(direct.consumedMs);
+  });
+
   it("rejects invalid attack intervals and elapsed times", () => {
     expect(() =>
       advanceEncounter(

@@ -61,7 +61,7 @@ export function advanceEncounter(
     // Player has priority when both attacks occur
     // at exactly the same timestamp.
     if (playerAttackElapsedMs >= player.attackIntervalMs) {
-      const attack = applyAttack(player, monsterHitpoints, randomState);
+      const attack = applyAttack(player, monster, monsterHitpoints, randomState);
 
       randomState = attack.randomState;
       playerAttackElapsedMs = 0;
@@ -74,7 +74,7 @@ export function advanceEncounter(
     }
 
     if (monsterAttackElapsedMs >= monster.attackIntervalMs) {
-      const attack = applyAttack(monster, playerHitpoints, randomState);
+      const attack = applyAttack(monster, player, playerHitpoints, randomState);
 
       randomState = attack.randomState;
       monsterAttackElapsedMs = 0;
@@ -110,10 +110,11 @@ function assertAttackTiming(intervalMs: number, elapsedMs: number): void {
 
 function applyAttack(
   attacker: CombatStats,
+  defender: CombatStats,
   targetHitpoints: number,
   randomState: number,
 ): { hitpoints: number; randomState: number } {
-  const attack = resolveAttack(attacker, randomState);
+  const attack = resolveAttack(attacker, defender, randomState);
   return {
     hitpoints: Math.max(0, targetHitpoints - attack.damage),
     randomState: attack.randomState,
