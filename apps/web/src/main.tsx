@@ -1,7 +1,8 @@
+import { CssBaseline, ThemeProvider } from "@mui/material";
+import { runemarkTheme } from "@runemark/ui";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
-import "./App.css";
 
 const root = document.getElementById("root");
 if (!root)
@@ -9,6 +10,9 @@ if (!root)
 
 createRoot(root).render(
   <StrictMode>
-    <App />
+    <ThemeProvider theme={runemarkTheme}>
+      <CssBaseline />
+      <App />
+    </ThemeProvider>
   </StrictMode>,
 );

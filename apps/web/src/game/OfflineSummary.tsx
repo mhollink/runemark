@@ -1,5 +1,17 @@
+import {
+  Alert,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  List,
+  ListItem,
+  ListItemText,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { gameContent } from "@runemark/content";
-import { useEffect, useRef } from "react";
 import type { OfflineReport } from "./offline-report";
 
 interface Props {
@@ -10,82 +22,89 @@ interface Props {
 function formatAwayDuration(milliseconds: number): string {
   const minutes = Math.floor(milliseconds / 60_000);
   const hours = Math.floor(minutes / 60);
-
-  return hours > 0 ? `${hours}h ${minutes % 60}m` : `${minutes}m`;
+  return hours > 0
+    ? `${hours}h ${minutes % 60}m`
+    : minutes > 0
+      ? `${minutes}m`
+      : `${Math.floor(milliseconds / 1000)}s`;
 }
 
 export function OfflineSummary({ report, onDismiss }: Props) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const { summary, events } = report;
-
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-
-    dialog.showModal();
-
-    return () => dialog.close();
-  }, []);
-
   const items = Object.entries(summary.itemsGained);
   const experience = Object.entries(summary.experienceGained);
-
   return (
-    <dialog ref={dialogRef} className="offline-dialog" onClose={onDismiss}>
-      <p className="eyebrow">Welcome back</p>
-      <h2>While you were away</h2>
-      <p className="offline-duration">
-        {formatAwayDuration(report.elapsedMs)} elapsed
-      </p>
+    <Dialog open onClose={onDismiss} fullWidth maxWidth="sm">
+      <DialogTitle>While you were away</DialogTitle>
+      <DialogContent dividers>
+        <Stack spacing={2}>
+          <Typography color="text.secondary">
+            {formatAwayDuration(report.elapsedMs)} elapsed
+          </Typography>
+          <Stack direction="row" gap={4}>
+            <BoxStat
+              label="Actions completed"
+              value={summary.completedActions}
+            />
+            <BoxStat label="Bank trips" value={summary.bankTrips} />
+          </Stack>
+          {items.length > 0 && (
+            <>
+              <Typography variant="h6">Resources collected</Typography>
+              <List disablePadding>
+                {items.map(([id, quantity]) => (
+                  <ListItem key={id} disableGutters>
+                    <ListItemText primary={gameContent.items[id]?.name ?? id} />
+                    <Typography>+{quantity.toLocaleString()}</Typography>
+                  </ListItem>
+                ))}
+              </List>
+            </>
+          )}
+          {experience.length > 0 && (
+            <>
+              <Typography variant="h6">Experience gained</Typography>
+              <List disablePadding>
+                {experience.map(([id, xp]) => (
+                  <ListItem key={id} disableGutters>
+                    <ListItemText
+                      primary={gameContent.skills[id]?.name ?? id}
+                    />
+                    <Typography>+{xp.toLocaleString()} XP</Typography>
+                  </ListItem>
+                ))}
+              </List>
+            </>
+          )}
+          {events.some((event) => event.type === "ACTIVITY_BLOCKED") && (
+            <Alert severity="warning">
+              Your activity was interrupted while you were away.
+            </Alert>
+          )}
+        </Stack>
+      </DialogContent>
+      <DialogActions>
+        <Button variant="contained" onClick={onDismiss}>
+          Continue
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
 
-      <dl className="offline-stats">
-        <div>
-          <dt>Actions completed</dt>
-          <dd>{summary.completedActions.toLocaleString()}</dd>
-        </div>
-        <div>
-          <dt>Bank trips</dt>
-          <dd>{summary.bankTrips.toLocaleString()}</dd>
-        </div>
-      </dl>
-
-      {items.length > 0 && (
-        <section>
-          <h3>Resources collected</h3>
-          <ul className="bank-list">
-            {items.map(([itemId, quantity]) => (
-              <li key={itemId}>
-                <span>{gameContent.items[itemId]?.name ?? itemId}</span>
-                <strong>+{quantity.toLocaleString()}</strong>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {experience.length > 0 && (
-        <section>
-          <h3>Experience gained</h3>
-          <ul className="bank-list">
-            {experience.map(([skillId, xp]) => (
-              <li key={skillId}>
-                <span>{skillId}</span>
-                <strong>+{xp.toLocaleString()} XP</strong>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {events.some((event) => event.type === "ACTIVITY_BLOCKED") && (
-        <p className="offline-warning">
-          Your activity was interrupted while you were away.
-        </p>
-      )}
-
-      <button type="button" className="action-button" onClick={onDismiss}>
-        Continue
-      </button>
-    </dialog>
+function BoxStat({
+  label,
+  value,
+}: {
+  readonly label: string;
+  readonly value: number;
+}) {
+  return (
+    <Stack>
+      <Typography variant="caption" color="text.secondary">
+        {label}
+      </Typography>
+      <Typography variant="h5">{value.toLocaleString()}</Typography>
+    </Stack>
   );
 }

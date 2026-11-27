@@ -9,12 +9,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^19.3.1",
-    "react-dom": "^19.3.1",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^9.6.0",
+    "@mui/material": "^9.6.0",
+    "@runemark/content": "workspace:*",
     "@runemark/domain": "workspace:*",
     "@runemark/engine": "workspace:*",
-    "@runemark/content": "workspace:*",
-    "@runemark/ui": "workspace:*"
+    "@runemark/ui": "workspace:*",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",

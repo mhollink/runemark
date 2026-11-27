@@ -1,30 +1,43 @@
-import { gameContent } from "@runemark/content";
-import { experienceForSkill } from "@runemark/domain";
+import AccountBalance from "@mui/icons-material/AccountBalance";
+import AutoStories from "@mui/icons-material/AutoStories";
+import Backpack from "@mui/icons-material/Backpack";
+import Favorite from "@mui/icons-material/Favorite";
+import Map from "@mui/icons-material/Map";
+import SportsMartialArts from "@mui/icons-material/SportsMartialArts";
 import {
-  BANKING_DURATION_MS,
-  isActivityAvailableAtNode,
-} from "@runemark/engine";
+  Alert,
+  AppBar,
+  BottomNavigation,
+  BottomNavigationAction,
+  Box,
+  Button,
+  Paper,
+  Stack,
+  Tab,
+  Tabs,
+  Toolbar,
+  Typography,
+} from "@mui/material";
+import { gameContent } from "@runemark/content";
+import { maxHitpointsForCharacter } from "@runemark/domain";
+import { useState } from "react";
 import { OfflineSummary } from "./game/OfflineSummary";
 import { useGame } from "./game/use-game";
+import { ActiveActivity } from "./layout/ActiveActivity";
+import { BankPage, InventoryPage } from "./pages/ResourcesPage";
+import { SkillsPage } from "./pages/SkillsPage";
+import { WorldPage } from "./pages/WorldPage";
 
-function formatDuration(milliseconds: number): string {
-  const seconds = Math.ceil(milliseconds / 1000);
+const navigation = [
+  { id: "skills", label: "Skills", icon: SportsMartialArts },
+  { id: "world", label: "World", icon: Map },
+  { id: "inventory", label: "Inventory", icon: Backpack },
+  { id: "bank", label: "Bank", icon: AccountBalance },
+  { id: "journal", label: "Journal", icon: AutoStories },
+] as const;
+type Page = (typeof navigation)[number]["id"];
 
-  if (seconds < 60) {
-    return `${seconds}s`;
-  }
-
-  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
-}
-
-function displayName(value: string): string {
-  return value
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
-function App() {
+export default function App() {
   const {
     game,
     offlineReport,
@@ -35,326 +48,183 @@ function App() {
     dismissOfflineReport,
     resetSave,
   } = useGame();
-
-  if (!game) {
-    return (
-      <main className="game-shell">
-        <h1>Unable to load Runemark</h1>
-        <p>{loadError}</p>
-        <p>Your existing save has not been overwritten.</p>
-        {storageError && <p role="alert">{storageError}</p>}
-        <button type="button" className="action-button" onClick={resetSave}>
-          Start a new game
-        </button>
-      </main>
-    );
-  }
-
-  const location = gameContent.locations[game.character.locationId];
-  const region = location ? gameContent.regions[location.regionId] : undefined;
-
-  const availableActivities = [
-    ...Object.values(gameContent.locations),
-    ...Object.values(gameContent.sites),
-  ]
-    .filter((node) => node.regionId === region?.id)
-    .flatMap((node) =>
-      Object.values(gameContent.activities)
-        .filter((activity) =>
-          isActivityAvailableAtNode(gameContent, node.id, activity),
-        )
-        .map((activity) => ({ node, activity })),
-    );
-
-  const session = game.activeActivity;
-  const banking = session?.phase === "banking";
-  const traveling =
-    session?.phase === "travel-to-bank" ||
-    session?.phase === "travel-to-activity";
-  const currentLeg = session?.travel?.legs[session.travel.index];
-
-  const selectedActivity = session
-    ? gameContent.activities[session.activityId]
-    : undefined;
-
-  const phaseDuration = banking
-    ? BANKING_DURATION_MS
-    : traveling
-      ? (currentLeg?.durationMs ?? 0)
-      : selectedActivity && selectedActivity.kind !== "combat"
-        ? selectedActivity.durationMs
-        : 0;
-
-  const phaseLabel = banking
-    ? "Banking resources"
-    : traveling
-      ? session?.phase === "travel-to-bank"
-        ? "Traveling to bank"
-        : "Traveling to activity"
-      : selectedActivity?.kind === "production"
-        ? "Producing items"
-        : selectedActivity?.kind === "combat"
-          ? "Fighting"
-          : "Gathering resources";
-
-  const progress =
-    session && phaseDuration > 0
-      ? Math.min(100, (session.elapsedMs / phaseDuration) * 100)
-      : 0;
-
-  const backpack = game.character.backpack;
-  const usedSlots = backpack.slots.length;
-  const capacity = backpack.capacity ?? usedSlots;
-  const inventoryPercent = capacity > 0 ? (usedSlots / capacity) * 100 : 0;
-
-  const bankItems = Object.entries(game.bank.items).sort(([first], [second]) =>
-    (gameContent.items[first]?.name ?? first).localeCompare(
-      gameContent.items[second]?.name ?? second,
-    ),
+  const [page, setPage] = useState<Page>("skills");
+  const [selectedSkillId, setSelectedSkillId] = useState(
+    gameContent.skills.woodcutting?.id ??
+      Object.values(gameContent.skills)[0]?.id ??
+      "",
   );
 
-  const skills = [
-    ...new Set(
-      Object.values(gameContent.activities).flatMap((activity) =>
-        activity.kind === "combat"
-          ? ["attack", "constitution"]
-          : [activity.skillId],
-      ),
-    ),
-  ].sort();
+  if (!game)
+    return (
+      <Stack spacing={2} sx={{ maxWidth: 560, mx: "auto", p: 3 }}>
+        <Typography variant="h4">Unable to load Runemark</Typography>
+        <Alert severity="error">{loadError}</Alert>
+        <Typography>Your existing save has not been overwritten.</Typography>
+        {storageError && <Alert severity="error">{storageError}</Alert>}
+        <Button variant="contained" onClick={resetSave}>
+          Start a new game
+        </Button>
+      </Stack>
+    );
 
+  const node =
+    gameContent.locations[game.character.nodeId] ??
+    gameContent.sites[game.character.nodeId];
+  const region = node ? gameContent.regions[node.regionId] : undefined;
   return (
-    <div className="game-shell">
-      <header className="topbar">
-        <div>
-          <p className="eyebrow">A Norse-inspired idle RPG</p>
-          <h1>RUNEMARK</h1>
-        </div>
-
-        <div className="location-label">
-          <span>{region?.name ?? "Unknown region"}</span>
-          <strong>{location?.name ?? game.character.locationId}</strong>
-        </div>
-      </header>
-
-      {storageError && (
-        <p role="alert" className="storage-warning">
-          {storageError}
-        </p>
-      )}
-
+    <Box
+      sx={{
+        height: "100dvh",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+      }}
+    >
+      <AppBar
+        position="static"
+        color="transparent"
+        sx={{
+          bgcolor: "background.paper",
+          borderBottom: 1,
+          borderColor: "divider",
+        }}
+      >
+        <Toolbar sx={{ gap: 1.5 }}>
+          <Box
+            component="img"
+            src="/favicon.png"
+            alt=""
+            sx={{ width: 36, height: 36, objectFit: "contain" }}
+          />
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="h6" sx={{ letterSpacing: 2, fontWeight: 800 }}>
+              RUNEMARK
+            </Typography>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ display: { xs: "none", sm: "block" } }}
+            >
+              A Norse-inspired idle RPG
+            </Typography>
+          </Box>
+          <Box sx={{ textAlign: "right", minWidth: 0 }}>
+            <Typography variant="body2" fontWeight={600}>
+              {node?.name ?? game.character.nodeId}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {region?.name ?? "Unknown region"}
+            </Typography>
+          </Box>
+          <Stack
+            direction="row"
+            alignItems="center"
+            gap={0.75}
+            sx={{ ml: { xs: 0, sm: 2 } }}
+          >
+            <Favorite color="error" fontSize="small" />
+            <Typography variant="body2" sx={{ whiteSpace: "nowrap" }}>
+              {game.character.currentHitpoints}/
+              {maxHitpointsForCharacter(game.character)}
+            </Typography>
+          </Stack>
+        </Toolbar>
+        <Tabs
+          value={page}
+          onChange={(_, value: Page) => setPage(value)}
+          aria-label="Main navigation"
+          sx={{ display: { xs: "none", sm: "flex" }, px: 2 }}
+        >
+          {navigation.map(({ id, label, icon: Icon }) => (
+            <Tab
+              key={id}
+              value={id}
+              label={label}
+              icon={<Icon fontSize="small" />}
+              iconPosition="start"
+            />
+          ))}
+        </Tabs>
+      </AppBar>
+      {storageError && <Alert severity="warning">{storageError}</Alert>}
+      <Box
+        sx={{
+          order: { xs: 2, sm: 0 },
+          px: { xs: 1, sm: 2 },
+          pt: { xs: 0, sm: 2 },
+          pb: { xs: 1, sm: 0 },
+          flexShrink: 0,
+        }}
+      >
+        <Box sx={{ maxWidth: 1400, mx: "auto" }}>
+          <ActiveActivity game={game} onStop={stopActivity} />
+        </Box>
+      </Box>
+      <Box
+        component="main"
+        sx={{
+          order: 1,
+          flex: 1,
+          minHeight: 0,
+          overflowY: "auto",
+          p: { xs: 1.5, sm: 2 },
+        }}
+      >
+        <Box sx={{ maxWidth: 1400, mx: "auto" }}>
+          {page === "skills" && (
+            <SkillsPage
+              game={game}
+              selectedSkillId={selectedSkillId}
+              onSelect={setSelectedSkillId}
+              onStart={startActivity}
+            />
+          )}
+          {page === "world" && (
+            <WorldPage game={game} onStart={startActivity} />
+          )}
+          {page === "inventory" && <InventoryPage game={game} />}
+          {page === "bank" && <BankPage game={game} />}
+          {page === "journal" && (
+            <Paper variant="outlined" sx={{ p: 3 }}>
+              <Typography variant="h4">Journal</Typography>
+              <Typography color="text.secondary" sx={{ mt: 1 }}>
+                Quests and achievements are planned for a later release.
+              </Typography>
+            </Paper>
+          )}
+        </Box>
+      </Box>
+      <BottomNavigation
+        showLabels
+        value={page}
+        onChange={(_, value: Page) => setPage(value)}
+        sx={{
+          order: 3,
+          display: { xs: "flex", sm: "none" },
+          borderTop: 1,
+          borderColor: "divider",
+          height: "auto",
+          minHeight: 56,
+          pb: "env(safe-area-inset-bottom)",
+        }}
+      >
+        {navigation.map(({ id, label, icon: Icon }) => (
+          <BottomNavigationAction
+            key={id}
+            value={id}
+            label={label}
+            icon={<Icon />}
+            sx={{ minWidth: 0, px: 0.5 }}
+          />
+        ))}
+      </BottomNavigation>
       {offlineReport && (
         <OfflineSummary
           report={offlineReport}
           onDismiss={dismissOfflineReport}
         />
       )}
-
-      <div className="game-grid">
-        <aside className="panel site-panel">
-          <div className="panel-heading">
-            <h2>Activities</h2>
-            <p>Choose what to train</p>
-          </div>
-
-          <div className="site-list">
-            {availableActivities.map(({ node, activity }) => {
-              const selected =
-                session?.nodeId === node.id &&
-                session.activityId === activity.id;
-              const active = selected && session?.status === "running";
-
-              return (
-                <button
-                  key={`${node.id}:${activity.id}`}
-                  type="button"
-                  className={`site-button ${selected ? "selected" : ""}`}
-                  onClick={() => startActivity(node.id, activity.id)}
-                  disabled={active}
-                  aria-pressed={selected}
-                >
-                  <span className="site-skill">
-                    {activity.kind === "combat"
-                      ? "Combat"
-                      : displayName(activity.skillId)}{" "}
-                  </span>
-                  <strong>{activity.name}</strong>
-                  <span className="site-details">{node.name}</span>
-                  <span className="site-details">
-                    {activity.kind === "combat"
-                      ? "Continuous combat"
-                      : `${formatDuration(activity.durationMs)} per action`}
-                  </span>
-                  {selected && (
-                    <span className="site-state">
-                      {active ? "Selected" : "Blocked"}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </aside>
-
-        <main className="panel activity-panel">
-          <p className="eyebrow">Current activity</p>
-
-          {session && selectedActivity ? (
-            <>
-              <div className="activity-symbol">
-                {banking
-                  ? "B"
-                  : selectedActivity.kind === "combat"
-                    ? "C"
-                    : displayName(selectedActivity.skillId)[0]}
-              </div>
-
-              <p className="activity-status">{phaseLabel}</p>
-
-              <h2>{selectedActivity.name}</h2>
-
-              <p className="activity-subtitle">
-                {banking
-                  ? "Depositing gathered resources into the bank."
-                  : selectedActivity.kind === "combat"
-                    ? "Continuous combat"
-                    : `${selectedActivity.experiencePerAction} XP per action`}
-              </p>
-
-              <div className="activity-progress">
-                <div className="progress-info">
-                  <span>{banking ? "Banking" : "Action progress"}</span>
-                  <span>
-                    {session.status === "blocked"
-                      ? "Blocked"
-                      : `${formatDuration(Math.max(0, phaseDuration - session.elapsedMs))} remaining`}
-                  </span>
-                </div>
-
-                <div
-                  className="progress-track"
-                  role="progressbar"
-                  aria-label={
-                    banking ? "Banking progress" : "Activity progress"
-                  }
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-valuenow={Math.floor(progress)}
-                >
-                  <div
-                    className="progress-fill"
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
-              </div>
-
-              <button
-                type="button"
-                className="action-button secondary"
-                onClick={stopActivity}
-              >
-                Stop activity
-              </button>
-            </>
-          ) : (
-            <div className="activity-empty">
-              <div className="activity-symbol">R</div>
-              <h2>Begin your journey</h2>
-              <p>Select Woodcutting or Mining to start gathering.</p>
-            </div>
-          )}
-        </main>
-
-        <aside className="resource-panel">
-          <section className="panel">
-            <div className="resource-heading">
-              <h2>Backpack</h2>
-              <span>
-                {usedSlots} / {capacity} slots
-              </span>
-            </div>
-
-            <div className="capacity-track">
-              <div style={{ width: `${inventoryPercent}%` }} />
-            </div>
-
-            <div className="inventory-grid">
-              {Array.from({ length: capacity }, (_, index) => {
-                const slot = backpack.slots[index];
-                const itemName = slot
-                  ? (gameContent.items[slot.itemId]?.name ?? slot.itemId)
-                  : "Empty slot";
-
-                return (
-                  <div
-                    className={`inventory-slot ${slot ? "occupied" : ""}`}
-                    // biome-ignore lint/suspicious/noArrayIndexKey: index is positional and fixed.
-                    key={index}
-                    title={slot ? `${itemName} x${slot.quantity}` : itemName}
-                  >
-                    {slot && (
-                      <>
-                        <span className="item-initial">
-                          {itemName.charAt(0)}
-                        </span>
-                        {slot.quantity > 1 && (
-                          <span className="item-count">{slot.quantity}</span>
-                        )}
-                      </>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          <section className="panel">
-            <div className="resource-heading">
-              <h2>Bank</h2>
-              <span>{bankItems.length} item types</span>
-            </div>
-
-            {bankItems.length === 0 ? (
-              <p className="empty-message">
-                Your bank is empty. Resources will be deposited automatically.
-              </p>
-            ) : (
-              <ul className="bank-list">
-                {bankItems.map(([itemId, quantity]) => (
-                  <li key={itemId}>
-                    <span>{gameContent.items[itemId]?.name ?? itemId}</span>
-                    <strong>{quantity.toLocaleString()}</strong>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-        </aside>
-      </div>
-
-      <section className="panel skills-panel">
-        <h2>Skills</h2>
-        <div className="skills-list">
-          {skills.map((skillId) => (
-            <div className="skill-entry" key={skillId}>
-              <strong>{displayName(skillId)}</strong>
-              <span>
-                {experienceForSkill(
-                  game.character.skills,
-                  skillId,
-                ).toLocaleString()}{" "}
-                XP
-              </span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <footer className="game-footer">
-        Runemark · Early development prototype
-      </footer>
-    </div>
+    </Box>
   );
 }
-
-export default App;
