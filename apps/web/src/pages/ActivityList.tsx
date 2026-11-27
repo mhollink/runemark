@@ -63,7 +63,7 @@ export function ActivityList({ game, options, onStart }: Props) {
   if (!options.length)
     return (
       <Paper variant="outlined" sx={{ p: 3 }}>
-        <Typography color="text.secondary">
+        <Typography color="textSecondary">
           No activities available here yet.
         </Typography>
       </Paper>
@@ -88,17 +88,18 @@ export function ActivityList({ game, options, onStart }: Props) {
           >
             <Stack
               direction={{ xs: "column", sm: "row" }}
-              alignItems={{ xs: "stretch", sm: "center" }}
-              gap={1.5}
+              sx={{alignItems: { xs: "stretch", sm: "center"}, gap: 2}}
             >
               <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Stack
                   direction="row"
-                  alignItems="center"
-                  flexWrap="wrap"
-                  gap={1}
+                  sx={{
+                    gap: 1,
+                    flexWrap: "wrap",
+                    alignItems: "center"
+                  }}
                 >
-                  <Typography variant="h6" fontSize="1rem">
+                  <Typography variant="h6" sx={{fontSize: "1rem"}}>
                     {activity.name}
                   </Typography>
                   {active && (
@@ -106,7 +107,7 @@ export function ActivityList({ game, options, onStart }: Props) {
                   )}
                   {locked && <LockOutlined fontSize="small" color="disabled" />}
                 </Stack>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" color="textSecondary">
                   {activity.kind === "combat"
                     ? "Combat"
                     : `${formatDuration(activity.durationMs)} per action · ${activity.experiencePerAction} XP`}{" "}
@@ -118,7 +119,7 @@ export function ActivityList({ game, options, onStart }: Props) {
                 {(activity.requirements ?? []).length > 0 && (
                   <Typography
                     variant="caption"
-                    color={locked ? "warning.main" : "text.secondary"}
+                    color={locked ? "warning" : "textSecondary"}
                   >
                     {activity.requirements
                       ?.map(
@@ -147,7 +148,7 @@ export function ActivityList({ game, options, onStart }: Props) {
         </DialogTitle>
         <DialogContent dividers>
           <Stack spacing={2}>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="textSecondary">
               Select a location. Travel and banking are handled automatically.
             </Typography>
             <List disablePadding>
@@ -192,7 +193,7 @@ export function ActivityList({ game, options, onStart }: Props) {
                   <Typography
                     key={skillId}
                     variant="body2"
-                    color="warning.main"
+                    color="warning"
                   >
                     Requires{" "}
                     {gameContent.skills[skillId]?.name ?? displayName(skillId)}{" "}
@@ -201,7 +202,7 @@ export function ActivityList({ game, options, onStart }: Props) {
                 ),
               )}
             {game.activeActivity?.status === "running" && canStart && (
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color="textSecondary">
                 Starting will replace your current activity.
               </Typography>
             )}

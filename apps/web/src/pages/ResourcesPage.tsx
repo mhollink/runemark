@@ -22,9 +22,9 @@ export function InventoryPage({ game }: { readonly game: GameSave }) {
       <Typography variant="h4">Inventory</Typography>
       <Paper variant="outlined" sx={{ p: 2 }}>
         <Stack spacing={2}>
-          <Stack direction="row" justifyContent="space-between">
+          <Stack direction="row" sx={{justifyContent: "space-between"}}>
             <Typography variant="h6">Backpack</Typography>
-            <Typography color="text.secondary">
+            <Typography color="textSecondary">
               {backpack.slots.length}/{backpack.capacity} slots
             </Typography>
           </Stack>
@@ -40,7 +40,7 @@ export function InventoryPage({ game }: { readonly game: GameSave }) {
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(76px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))",
               gap: 1,
             }}
           >
@@ -74,7 +74,7 @@ export function InventoryPage({ game }: { readonly game: GameSave }) {
                       {slot ? name : "Empty"}
                     </Typography>
                     {slot && (
-                      <Typography variant="caption" fontWeight={700}>
+                      <Typography variant="caption" sx={{fontWeight :700}}>
                         ×{slot.quantity}
                       </Typography>
                     )}
@@ -116,7 +116,7 @@ export function BankPage({ game }: { readonly game: GameSave }) {
             {items.map(({ id, name, quantity }) => (
               <ListItem key={id} divider>
                 <ListItemText primary={name} />
-                <Typography fontWeight={600}>
+                <Typography sx={{fontWeight: 600    }}>
                   {quantity.toLocaleString()}
                 </Typography>
               </ListItem>

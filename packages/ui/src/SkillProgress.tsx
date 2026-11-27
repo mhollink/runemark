@@ -23,9 +23,11 @@ export function SkillProgress({
     <Stack spacing={0.75} sx={{ flex: 1, minWidth: 0 }}>
       <Stack
         direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        gap={1}
+        sx={{
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 1
+        }}
       >
         <Typography variant={compact ? "body2" : "h5"} noWrap>
           {name}
@@ -36,7 +38,7 @@ export function SkillProgress({
           sx={{ whiteSpace: "nowrap" }}
         >
           {compact
-            ? levelForExperience(experience)
+            ? "Lv." + levelForExperience(experience)
             : `Level ${levelForExperience(experience)}`}
         </Typography>
       </Stack>
@@ -47,7 +49,7 @@ export function SkillProgress({
         aria-label={`${name} level progress`}
       />
       {!compact && (
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" color="textSecondary">
           {experience.toLocaleString()} XP ·{" "}
           {remaining === null
             ? "Maximum level"

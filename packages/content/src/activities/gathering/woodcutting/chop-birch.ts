@@ -7,7 +7,9 @@ export const chopBirch = {
   skillId: "woodcutting",
   durationMs: 4000,
   experiencePerAction: 4,
-
+  requirements: [
+    {skillId: "woodcutting", level: 1}
+  ],
   rewards: {
     kind: "fixed",
     drops: [{ itemId: "birch-log", quantity: 1 }],

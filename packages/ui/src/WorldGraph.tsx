@@ -22,7 +22,7 @@ const colors = {
   settlement: "#d5ac70",
   gathering: "#83ba91",
   combat: "#d48080",
-  mixed: "#7ea8db",
+  mixed: "#3ee3d5",
 } as const;
 
 export function WorldGraph({
@@ -104,7 +104,7 @@ export function WorldGraph({
                   outline: selected ? "2px solid #e5edf7" : "none",
                   outlineOffset: 3,
                   "&.Mui-focusVisible": {
-                    outline: "3px solid #7ea8db",
+                    outline: "3px solid #847edb",
                     outlineOffset: 3,
                   },
                 }}
@@ -115,7 +115,7 @@ export function WorldGraph({
                     height: node.kind === "settlement" ? 17 : 12,
                     borderRadius: node.kind === "settlement" ? 1 : "50%",
                     bgcolor: colors[node.kind],
-                    boxShadow: current ? "0 0 0 4px #7ea8db" : "none",
+                    boxShadow: current ? "0 0 0 4px #847edb" : "none",
                   }}
                 />
                 <Typography
@@ -141,9 +141,9 @@ export function WorldGraph({
           })}
         </Box>
       </Box>
-      <Stack direction="row" gap={2} flexWrap="wrap" sx={{ p: 1.5 }}>
+      <Stack direction="row" useFlexGap sx={{ p: 1.5, gap: 2 }}>
         {Object.entries(colors).map(([kind, color]) => (
-          <Stack key={kind} direction="row" alignItems="center" gap={0.75}>
+          <Stack key={kind} direction="row" sx={{alignItems: "center", gap: 0.75}}>
             <Box
               sx={{
                 width: 10,

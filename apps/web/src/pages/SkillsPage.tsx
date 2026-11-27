@@ -142,7 +142,7 @@ export function SkillsPage({
       </TextField>
       <Stack spacing={2} sx={{ minWidth: 0 }}>
         <Paper variant="outlined" sx={{ p: 2.5 }}>
-          <Stack direction="row" alignItems="center" gap={2}>
+          <Stack direction="row" sx={{alignItems: "center", gap: 2}}>
             <Icon color={categoryColor(skill.category)} sx={{ fontSize: 44 }} />
             <SkillProgress
               name={skill.name}

@@ -3,7 +3,7 @@ import AutoStories from "@mui/icons-material/AutoStories";
 import Backpack from "@mui/icons-material/Backpack";
 import Favorite from "@mui/icons-material/Favorite";
 import Map from "@mui/icons-material/Map";
-import SportsMartialArts from "@mui/icons-material/SportsMartialArts";
+import Leaderboard from "@mui/icons-material/Leaderboard";
 import {
   Alert,
   AppBar,
@@ -29,12 +29,13 @@ import { SkillsPage } from "./pages/SkillsPage";
 import { WorldPage } from "./pages/WorldPage";
 
 const navigation = [
-  { id: "skills", label: "Skills", icon: SportsMartialArts },
+  { id: "skills", label: "Skills", icon: Leaderboard },
   { id: "world", label: "World", icon: Map },
   { id: "inventory", label: "Inventory", icon: Backpack },
   { id: "bank", label: "Bank", icon: AccountBalance },
   { id: "journal", label: "Journal", icon: AutoStories },
 ] as const;
+
 type Page = (typeof navigation)[number]["id"];
 
 export default function App() {
@@ -72,6 +73,7 @@ export default function App() {
     gameContent.locations[game.character.nodeId] ??
     gameContent.sites[game.character.nodeId];
   const region = node ? gameContent.regions[node.regionId] : undefined;
+
   return (
     <Box
       sx={{
@@ -90,38 +92,39 @@ export default function App() {
           borderColor: "divider",
         }}
       >
-        <Toolbar sx={{ gap: 1.5 }}>
+        <Toolbar sx={{ gap: 1.5, mt: 1 }}>
           <Box
             component="img"
             src="/favicon.png"
             alt=""
-            sx={{ width: 36, height: 36, objectFit: "contain" }}
+            sx={{ width: 50, height: 50, objectFit: "contain" }}
           />
           <Box sx={{ flex: 1 }}>
-            <Typography variant="h6" sx={{ letterSpacing: 2, fontWeight: 800 }}>
+            <Typography variant="h5" sx={{ letterSpacing: 2, fontWeight: 800 }}>
               RUNEMARK
             </Typography>
             <Typography
               variant="caption"
-              color="text.secondary"
+              color="textSecondary"
               sx={{ display: { xs: "none", sm: "block" } }}
             >
               A Norse-inspired idle RPG
             </Typography>
           </Box>
           <Box sx={{ textAlign: "right", minWidth: 0 }}>
-            <Typography variant="body2" fontWeight={600}>
+            <Typography variant="body2" sx={{fontWeight: 600}}>
               {node?.name ?? game.character.nodeId}
             </Typography>
-            <Typography variant="caption" color="text.secondary">
+            <Typography variant="caption" color="textSecondary">
               {region?.name ?? "Unknown region"}
             </Typography>
           </Box>
           <Stack
             direction="row"
-            alignItems="center"
-            gap={0.75}
-            sx={{ ml: { xs: 0, sm: 2 } }}
+            sx={{
+                alignItems: "center",
+                gap: 1,
+                ml: { xs: 0, sm: 2 } }}
           >
             <Favorite color="error" fontSize="small" />
             <Typography variant="body2" sx={{ whiteSpace: "nowrap" }}>
@@ -135,13 +138,14 @@ export default function App() {
           onChange={(_, value: Page) => setPage(value)}
           aria-label="Main navigation"
           sx={{ display: { xs: "none", sm: "flex" }, px: 2 }}
+          variant="fullWidth"
         >
           {navigation.map(({ id, label, icon: Icon }) => (
             <Tab
               key={id}
               value={id}
               label={label}
-              icon={<Icon fontSize="small" />}
+              icon={<Icon />}
               iconPosition="start"
             />
           ))}

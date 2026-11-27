@@ -43,7 +43,7 @@ export function ActiveActivity({ game, onStop }: Props) {
   const fighting = activity.phase === "work" && monster !== undefined;
   return (
     <Paper variant="outlined" sx={{ p: 1.5, flexShrink: 0 }}>
-      <Stack direction="row" alignItems="center" gap={1.5}>
+      <Stack direction="row" sx={{alignItems: "center", gap: 1.5}}>
         <Box
           sx={{
             color: activity.blocked ? "error.main" : "primary.main",
@@ -53,13 +53,13 @@ export function ActiveActivity({ game, onStop }: Props) {
           <Autorenew />
         </Box>
         <Stack spacing={0.5} sx={{ flex: 1, minWidth: 0 }}>
-          <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
-            <Typography fontWeight={650}>{activity.activity.name}</Typography>
+          <Stack direction="row" sx={{alignItems: "center", gap: 1, flexWrap: "wrap"}}>
+            <Typography sx={{fontWeight: 700}}>{activity.activity.name}</Typography>
             {activity.blocked && (
               <Chip size="small" color="error" label="Blocked" />
             )}
           </Stack>
-          <Typography variant="caption" color="text.secondary">
+          <Typography variant="caption" color="textSecondary">
             {activity.node?.name} ·{" "}
             {activity.blocked ? "Activity interrupted" : activity.phaseLabel}
             {!activity.blocked && activity.durationMs > 0
@@ -114,7 +114,7 @@ export function ActiveActivity({ game, onStop }: Props) {
         </IconButton>
       </Stack>
       <Collapse in={expanded}>
-        <Stack direction="row" gap={1} flexWrap="wrap" sx={{ mt: 2 }}>
+        <Stack direction="row" sx={{gap: 1, flexWrap: "wrap",  mt: 2 }}>
           <Chip
             icon={<DirectionsWalk />}
             label="Travel"

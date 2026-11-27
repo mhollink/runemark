@@ -66,8 +66,10 @@ export function WorldPage({ game, onStart }: Props) {
     <Stack spacing={2}>
       <Stack
         direction={{ xs: "column", sm: "row" }}
-        justifyContent="space-between"
-        gap={1.5}
+        sx={{
+          justifyContent: "space-between",
+          gap: 2
+        }}
       >
         <Box>
           <Typography variant="h4">World</Typography>
@@ -75,10 +77,9 @@ export function WorldPage({ game, onStart }: Props) {
             Explore settlements, sites and their connections.
           </Typography>
         </Box>
-        <Stack direction="row" gap={1}>
+        <Stack direction="row" sx={{gap: 1}}>
           <TextField
             select
-            size="small"
             label="Region"
             value={regionId}
             onChange={(event) => {
@@ -95,7 +96,6 @@ export function WorldPage({ game, onStart }: Props) {
           </TextField>
           <ToggleButtonGroup
             exclusive
-            size="small"
             value={graphNodes ? view : "list"}
             onChange={(_, value: "map" | "list" | null) => {
               if (value) setView(value);
@@ -153,14 +153,14 @@ export function WorldPage({ game, onStart }: Props) {
       {selectedNode && (
         <Paper variant="outlined" sx={{ p: 2.5 }}>
           <Stack spacing={2}>
-            <Stack direction="row" alignItems="center" flexWrap="wrap" gap={1}>
+            <Stack direction="row" sx={{alignItems: "center", flexWrap: "wrap", gap: 1}}>
               <Typography variant="h5">{selectedNode.name}</Typography>
               {selectedNode.id === game.character.nodeId && (
                 <Chip size="small" color="primary" label="Current location" />
               )}
             </Stack>
             {facilities.length > 0 && (
-              <Stack direction="row" flexWrap="wrap" gap={1}>
+              <Stack direction="row" sx={{flexWrap: "wrap", gap: 1}}>
                 {facilities.map((facility) => (
                   <Chip
                     key={facility}
@@ -172,7 +172,7 @@ export function WorldPage({ game, onStart }: Props) {
               </Stack>
             )}
             <Typography variant="subtitle2">Connected routes</Typography>
-            <Stack direction="row" flexWrap="wrap" gap={1}>
+            <Stack direction="row" sx={{flexWrap: "wrap", gap: 1}}>
               {connections.map((route) => {
                 const otherId =
                   route.fromId === selectedNode.id ? route.toId : route.fromId;
@@ -202,7 +202,7 @@ export function WorldPage({ game, onStart }: Props) {
                 onStart={onStart}
               />
             ) : (
-              <Typography color="text.secondary">
+              <Typography color="textSecondary">
                 Starting activities in other regions is not enabled in this
                 first UI increment.
               </Typography>
