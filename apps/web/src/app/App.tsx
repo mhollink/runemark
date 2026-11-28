@@ -2,6 +2,7 @@ import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { LuSwords } from "react-icons/lu";
+import {RunemarkLogo} from "@/app/RunemarkLogo.tsx";
 
 export function App() {
   return (
@@ -21,18 +22,11 @@ export function App() {
           textAlign: "center",
         }}
       >
-        <Box
-          component="img"
-          src="/favicon.png"
-          alt=""
-          sx={{
-            width: 96,
-            height: 96,
-            objectFit: "contain",
-          }}
-        />
+          <Box sx={{ color: "primary.main", display: "flex" }}>
+              <RunemarkLogo size={124} />
+          </Box>
 
-        <Typography variant="h4" sx={{ letterSpacing: 4 }}>
+          <Typography variant="h4" sx={{ letterSpacing: 4 }}>
           RUNEMARK
         </Typography>
 
