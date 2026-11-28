@@ -4,8 +4,8 @@ import {
   BANKING_DURATION_MS,
   isActivityAvailableAtNode,
 } from "@runemark/engine";
-import { OfflineSummary } from "./game/OfflineSummary";
-import { useGame } from "./game/use-game";
+import { OfflineSummary } from "../game/OfflineSummary.tsx";
+import { useGame } from "../game/use-game.ts";
 
 function formatDuration(milliseconds: number): string {
   const seconds = Math.ceil(milliseconds / 1000);
