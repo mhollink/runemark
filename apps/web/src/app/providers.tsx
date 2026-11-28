@@ -1,27 +1,23 @@
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
-import { executeCommand } from "@runemark/engine";
 import { type PropsWithChildren, useState } from "react";
-import { createGameStore, GameProvider } from "@/game";
-import { createInitialGame } from "@/game/runtime/create-initial-game";
+import { createGameApplication, GameProvider } from "@/game";
+import { GameRuntimeController } from "./GameRuntimeController";
+import { GameStateGate } from "./GameStateGate";
 import { theme } from "./theme/theme";
 
 export function AppProviders({ children }: PropsWithChildren) {
-  const [store] = useState(() =>
-    createGameStore(
-      {
-        now: Date.now,
-        execute: executeCommand,
-      },
-      createInitialGame(),
-    ),
-  );
+  const [runtime] = useState(createGameApplication);
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
 
-      <GameProvider store={store}>{children}</GameProvider>
+      <GameProvider store={runtime.store}>
+        <GameRuntimeController runtime={runtime} />
+
+        <GameStateGate onReset={runtime.reset}>{children}</GameStateGate>
+      </GameProvider>
     </ThemeProvider>
   );
 }

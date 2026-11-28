@@ -8,11 +8,16 @@ const SAVE_KEY = "primary";
 export function createIndexedDbSaveRepository(
   databaseName = DATABASE_NAME,
 ): GameSaveRepository {
-  const store = createStore(databaseName, STORE_NAME);
+  let store: ReturnType<typeof createStore> | undefined;
+
+  function getStore() {
+    store ??= createStore(databaseName, STORE_NAME);
+    return store;
+  }
 
   return {
-    load: () => get<unknown>(SAVE_KEY, store),
-    save: (game) => set(SAVE_KEY, game, store),
-    remove: () => del(SAVE_KEY, store),
+    load: async () => get<unknown>(SAVE_KEY, getStore()),
+    save: async (game) => set(SAVE_KEY, game, getStore()),
+    remove: async () => del(SAVE_KEY, getStore()),
   };
 }

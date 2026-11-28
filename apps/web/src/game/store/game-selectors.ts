@@ -5,11 +5,26 @@ import {
   type SkillId,
   usedInventorySlots,
 } from "@runemark/domain";
-import type { GameStore } from "./game-store";
+import type { GameStore } from "@/game";
 
 // Game
 
 export const selectGame = (state: GameStore) => state.game;
+
+// Runtime
+
+export const selectGameStatus = (state: GameStore) => state.status;
+
+export const selectRuntimeError = (state: GameStore) => state.runtimeError;
+
+export const selectStorageError = (state: GameStore) => state.storageError;
+
+// Offline progression
+
+export const selectOfflineReport = (state: GameStore) => state.offlineReport;
+
+export const selectDismissOfflineReport = (state: GameStore) =>
+  state.dismissOfflineReport;
 
 // Character
 

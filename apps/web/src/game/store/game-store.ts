@@ -1,10 +1,17 @@
 import type { GameSave } from "@runemark/domain";
 import type { GameCommand, SimulationResult } from "@runemark/engine";
 import { createStore } from "zustand/vanilla";
+import type { OfflineReport } from "../runtime/offline-report";
+
+export type GameStatus = "loading" | "ready" | "error";
 
 export interface GameState {
   readonly game: GameSave | null;
+  readonly status: GameStatus;
+  readonly runtimeError: string | null;
+  readonly storageError: string | null;
   readonly commandError: string | null;
+  readonly offlineReport: OfflineReport | null;
 }
 
 export interface GameActions {
@@ -14,6 +21,7 @@ export interface GameActions {
   stopActivity(): void;
 
   dismissCommandError(): void;
+  dismissOfflineReport(): void;
 }
 
 export type GameStore = GameState & GameActions;
@@ -26,6 +34,8 @@ export interface GameStoreDependencies {
     command: GameCommand,
     at: number,
   ) => SimulationResult;
+
+  readonly onCommandExecuted?: () => void;
 }
 
 export function createGameStore(
@@ -34,11 +44,16 @@ export function createGameStore(
 ) {
   return createStore<GameStore>()((set, get) => ({
     game: initialGame,
+    status: initialGame ? "ready" : "loading",
+    runtimeError: null,
+    storageError: null,
     commandError: null,
+    offlineReport: null,
 
     dispatch: (command) => {
-      const { game } = get();
-      if (!game) return;
+      const { game, status } = get();
+
+      if (!game || status !== "ready") return;
 
       try {
         const at = Math.max(dependencies.now(), game.lastSimulatedAt);
@@ -55,7 +70,11 @@ export function createGameStore(
               ? error.message
               : "Unable to execute game command.",
         });
+
+        return;
       }
+
+      dependencies.onCommandExecuted?.();
     },
 
     startActivity: (nodeId, activityId) => {
@@ -65,14 +84,10 @@ export function createGameStore(
         activityId,
       });
     },
+    stopActivity: () => get().dispatch({ type: "STOP_ACTIVITY" }),
 
-    stopActivity: () => {
-      get().dispatch({ type: "STOP_ACTIVITY" });
-    },
-
-    dismissCommandError: () => {
-      set({ commandError: null });
-    },
+    dismissCommandError: () => set({ commandError: null }),
+    dismissOfflineReport: () => set({ offlineReport: null }),
   }));
 }
 

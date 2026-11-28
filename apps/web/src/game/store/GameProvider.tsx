@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from "react";
+import type { GameStoreApi } from "@/game";
 import { GameContext } from "./game-context";
-import type { GameStoreApi } from "./game-store";
 
 type Props = PropsWithChildren<{
   readonly store: GameStoreApi;

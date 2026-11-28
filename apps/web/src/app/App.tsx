@@ -1,6 +1,7 @@
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import { GameRuntimePreview } from "@/app/GameRuntimePreview.tsx";
 import { GameStorePreview } from "@/app/GameStorePreview.tsx";
 import { RunemarkLogo } from "@/app/RunemarkLogo.tsx";
 
@@ -33,6 +34,7 @@ export function App() {
         <Typography color="textSecondary">A Norse-inspired idle RPG</Typography>
 
         <GameStorePreview />
+        <GameRuntimePreview />
 
         <Typography variant="caption" color="textSecondary">
           Early development

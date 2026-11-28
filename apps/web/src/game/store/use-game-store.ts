@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { useStore } from "zustand";
+import type { GameStore } from "@/game";
 import { GameContext } from "./game-context";
-import type { GameStore } from "./game-store";
 
 export const useGameStore = <T>(selector: (state: GameStore) => T): T => {
   const store = useContext(GameContext);
