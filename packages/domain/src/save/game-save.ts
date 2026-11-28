@@ -6,7 +6,7 @@ import {
   assertNonNegativeSafeInteger,
 } from "../shared/validation";
 
-export const SAVE_SCHEMA_VERSION = 3 as const;
+export const SAVE_SCHEMA_VERSION = 1 as const;
 
 export interface GameSave {
   readonly schemaVersion: typeof SAVE_SCHEMA_VERSION;

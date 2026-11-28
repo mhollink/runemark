@@ -1,0 +1,3 @@
+export const SIMULATION_INTERVAL_MS = 250;
+export const SAVE_INTERVAL_MS = 5_000;
+export const MIN_OFFLINE_DURATION_MS = 30_000;
