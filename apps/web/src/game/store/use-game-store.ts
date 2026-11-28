@@ -1,0 +1,14 @@
+import { useContext } from "react";
+import { useStore } from "zustand";
+import { GameContext } from "./game-context";
+import type { GameStore } from "./game-store";
+
+export const useGameStore = <T>(selector: (state: GameStore) => T): T => {
+  const store = useContext(GameContext);
+
+  if (!store) {
+    throw new Error("useGameStore must be used within a GameProvider.");
+  }
+
+  return useStore(store, selector);
+};

@@ -1,8 +1,8 @@
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import { LuSwords } from "react-icons/lu";
-import {RunemarkLogo} from "@/app/RunemarkLogo.tsx";
+import { GameStorePreview } from "@/app/GameStorePreview.tsx";
+import { RunemarkLogo } from "@/app/RunemarkLogo.tsx";
 
 export function App() {
   return (
@@ -22,19 +22,17 @@ export function App() {
           textAlign: "center",
         }}
       >
-          <Box sx={{ color: "primary.main", display: "flex" }}>
-              <RunemarkLogo size={124} />
-          </Box>
+        <Box sx={{ color: "primary.main", display: "flex" }}>
+          <RunemarkLogo size={124} />
+        </Box>
 
-          <Typography variant="h4" sx={{ letterSpacing: 4 }}>
+        <Typography variant="h4" sx={{ letterSpacing: 4 }}>
           RUNEMARK
         </Typography>
 
         <Typography color="textSecondary">A Norse-inspired idle RPG</Typography>
 
-        <Box sx={{ color: "primary.main" }}>
-          <LuSwords size={24} aria-hidden />
-        </Box>
+        <GameStorePreview />
 
         <Typography variant="caption" color="textSecondary">
           Early development
