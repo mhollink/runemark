@@ -13,8 +13,7 @@
     "react-dom": "^19.3.1",
     "@runemark/domain": "workspace:*",
     "@runemark/engine": "workspace:*",
-    "@runemark/content": "workspace:*",
-    "@runemark/ui": "workspace:*"
+    "@runemark/content": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",
