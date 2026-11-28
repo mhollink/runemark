@@ -9,6 +9,7 @@ import type { ActivityRuntime } from "./activity-runtime";
 export interface ActivitySummary {
   completedActions: number;
   bankTrips: number;
+  coinsGained: number;
   readonly itemsGained: Record<string, number>;
   readonly itemsConsumed: Record<string, number>;
   readonly itemsBanked: Record<string, number>;
@@ -19,6 +20,7 @@ export function createActivitySummary(): ActivitySummary {
   return {
     completedActions: 0,
     bankTrips: 0,
+    coinsGained: 0,
     itemsGained: {},
     itemsConsumed: {},
     itemsBanked: {},

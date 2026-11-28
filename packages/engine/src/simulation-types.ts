@@ -2,6 +2,7 @@ import type { GameSave } from "@runemark/domain";
 
 export interface SimulationSummary {
   readonly completedActions: number;
+  readonly coinsGained: number;
   readonly itemsGained: Readonly<Record<string, number>>;
   readonly itemsConsumed: Readonly<Record<string, number>>;
   readonly experienceGained: Readonly<Record<string, number>>;

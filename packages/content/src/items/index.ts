@@ -19,7 +19,6 @@ import { brassMailShirt } from "./brass-mail-shirt";
 import { brassSword } from "./brass-sword";
 import { bread } from "./bread";
 import { clothScraps } from "./cloth-scraps";
-import { coins } from "./coins";
 import { cookedBearMeat } from "./cooked-bear-meat";
 import { cookedBeef } from "./cooked-beef";
 import { cookedBream } from "./cooked-bream";
@@ -80,7 +79,6 @@ export const items = [
   brassSword,
   bread,
   clothScraps,
-  coins,
   cookedBearMeat,
   cookedBeef,
   cookedBream,

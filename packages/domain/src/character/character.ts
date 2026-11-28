@@ -12,6 +12,7 @@ export interface Character {
   readonly nodeId: string;
   readonly locationId: string;
   readonly currentHitpoints: number;
+  readonly coins: number;
   readonly skills: SkillProgress;
   readonly backpack: Inventory;
 }
@@ -35,6 +36,7 @@ export function createCharacter(input: NewCharacter): Character {
     nodeId: input.locationId,
     locationId: input.locationId,
     currentHitpoints: levelForSkill(skills, "constitution"),
+    coins: 0,
     skills: skills,
     backpack: createInventory(INITIAL_BACKPACK_CAPACITY),
   };
