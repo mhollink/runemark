@@ -3,6 +3,10 @@ import type { ItemQuantity } from "../items/item-quantity";
 export type LootNode =
   | { readonly kind: "nothing" }
   | {
+      readonly kind: "currency";
+      readonly amount: number;
+    }
+  | {
       readonly kind: "fixed";
       readonly drops: readonly ItemQuantity[];
     }

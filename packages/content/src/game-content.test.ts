@@ -31,6 +31,10 @@ function validateLoot(
     case "nothing":
       return;
 
+    case "currency":
+      expect(node.amount, `${path}: invalid currency value`).toBeGreaterThan(0);
+      return;
+
     case "fixed":
       expect(node.drops.length, `${path}: empty fixed drops`).toBeGreaterThan(
         0,

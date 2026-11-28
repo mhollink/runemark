@@ -4,11 +4,26 @@ export function fixedDrop(itemId: ItemId, quantity = 1): LootNode {
   return { kind: "fixed", drops: [{ itemId, quantity }] };
 }
 
-/** Every integer quantity in the inclusive range has an equal probability. */
+export function currencyDrop(amount: number): LootNode {
+  return { kind: "currency", amount };
+}
+
 export function quantityRange(
   itemId: ItemId,
   min: number,
   max: number,
+): LootNode {
+  return rewardRange(min, max, (quantity) => fixedDrop(itemId, quantity));
+}
+
+export function currencyRange(min: number, max: number): LootNode {
+  return rewardRange(min, max, currencyDrop);
+}
+
+function rewardRange(
+  min: number,
+  max: number,
+  reward: (amount: number) => LootNode,
 ): LootNode {
   if (
     !Number.isSafeInteger(min) ||
@@ -23,7 +38,7 @@ export function quantityRange(
     kind: "weighted",
     entries: Array.from({ length: max - min + 1 }, (_, index) => ({
       weight: 1,
-      reward: fixedDrop(itemId, min + index),
+      reward: reward(min + index),
     })),
   };
 }

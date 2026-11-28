@@ -1,5 +1,9 @@
 import type { MonsterDefinition } from "@runemark/domain";
-import { fixedDrop, quantityRange } from "../common/loot/loot-builders";
+import {
+  currencyRange,
+  fixedDrop,
+  quantityRange,
+} from "../common/loot/loot-builders";
 
 export const zombie = {
   id: "zombie",
@@ -20,7 +24,7 @@ export const zombie = {
     kind: "all",
     rewards: [
       { kind: "fixed", drops: [{ itemId: "bones", quantity: 1 }] },
-      quantityRange("coins", 3, 8),
+      currencyRange(3, 8),
       {
         kind: "weighted",
         entries: [

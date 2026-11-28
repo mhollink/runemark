@@ -1,5 +1,9 @@
 import type { MonsterDefinition } from "@runemark/domain";
-import { fixedDrop, quantityRange } from "../common/loot/loot-builders";
+import {
+  currencyRange,
+  fixedDrop,
+  quantityRange,
+} from "../common/loot/loot-builders";
 
 export const draugar = {
   id: "draugar",
@@ -20,7 +24,7 @@ export const draugar = {
     kind: "all",
     rewards: [
       { kind: "fixed", drops: [{ itemId: "bones", quantity: 1 }] },
-      quantityRange("coins", 12, 25),
+      currencyRange(12, 25),
       {
         kind: "conditional",
         oneIn: 4,

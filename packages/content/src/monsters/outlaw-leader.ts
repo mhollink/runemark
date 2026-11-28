@@ -1,5 +1,5 @@
 import type { MonsterDefinition } from "@runemark/domain";
-import { fixedDrop, quantityRange } from "../common/loot/loot-builders";
+import { currencyRange, fixedDrop } from "../common/loot/loot-builders";
 
 export const outlawLeader = {
   id: "outlaw-leader",
@@ -20,7 +20,7 @@ export const outlawLeader = {
     kind: "all",
     rewards: [
       { kind: "fixed", drops: [{ itemId: "bones", quantity: 1 }] },
-      quantityRange("coins", 25, 50),
+      currencyRange(25, 50),
       {
         kind: "conditional",
         oneIn: 250,

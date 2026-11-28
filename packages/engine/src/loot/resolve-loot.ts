@@ -4,6 +4,7 @@ import { nextRandom } from "./random";
 
 export interface LootResolution {
   readonly drops: readonly ItemQuantity[];
+  readonly coins: number;
   readonly randomState: number;
 }
 
@@ -36,10 +37,21 @@ export function resolveLoot(
 ): LootResolution {
   switch (node.kind) {
     case "nothing":
-      return { drops: [], randomState };
+      return { drops: [], coins: 0, randomState };
 
     case "fixed":
-      return { drops: [...node.drops], randomState };
+      return { drops: [...node.drops], coins: 0, randomState };
+
+    case "currency":
+      if (!Number.isSafeInteger(node.amount) || node.amount < 0) {
+        throw new RangeError("Invalid currency reward");
+      }
+
+      return {
+        drops: [],
+        coins: node.amount,
+        randomState,
+      };
 
     case "table": {
       const table = findTable(node.tableId, content, visited);
@@ -113,13 +125,24 @@ function resolveGroupedLoot(
   visited: ReadonlySet<string>,
 ): LootResolution {
   const drops: ItemQuantity[] = [];
+
+  let coins = 0;
   let currentRandomState = randomState;
+
   for (const reward of node.rewards) {
     const result = resolveLoot(reward, content, currentRandomState, visited);
+
     drops.push(...result.drops);
+    coins += result.coins;
+
+    if (!Number.isSafeInteger(coins)) {
+      throw new RangeError("Currency reward overflow");
+    }
+
     currentRandomState = result.randomState;
   }
-  return { drops, randomState: currentRandomState };
+
+  return { drops, coins, randomState: currentRandomState };
 }
 
 /**

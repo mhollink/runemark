@@ -2,6 +2,7 @@ export * from "./activities/activity-definition";
 export * from "./activities/activity-session";
 export * from "./bank/bank";
 export * from "./character/character";
+export * from "./character/currency";
 export * from "./combat/combat-progress";
 export * from "./combat/combat-stats";
 export * from "./experience/experience-table";

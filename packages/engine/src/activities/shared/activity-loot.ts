@@ -1,4 +1,4 @@
-import type { LootNode } from "@runemark/domain";
+import { addCoins, type LootNode } from "@runemark/domain";
 import { resolveLoot } from "../../loot/resolve-loot";
 import { storeLoot } from "../../loot/store-loot";
 import type { ActivityRuntime } from "./activity-runtime";
@@ -12,6 +12,13 @@ export function collectLoot(runtime: ActivityRuntime, rewards: LootNode): void {
     loot.drops,
   );
   runtime.randomState = loot.randomState;
-  runtime.character = { ...runtime.character, backpack: stored.inventory };
+  runtime.character = addCoins(
+    {
+      ...runtime.character,
+      backpack: stored.inventory,
+    },
+    loot.coins,
+  );
+  runtime.summary.coinsGained += loot.coins;
   recordItems(runtime.summary.itemsGained, stored.accepted);
 }
